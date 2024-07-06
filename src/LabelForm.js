@@ -1,8 +1,12 @@
+import './LabelForm.css'
 import React, { useState } from "react";
 import Sample from "./Sample";
+import SampleList from './SampleList';
 import { Form, Button, FormGroup, Label, Input, Container, FormText } from 'reactstrap';
 
 function LabelForm() {
+
+
   return (
   
       <Form>
@@ -49,7 +53,8 @@ function LabelForm() {
             Upload an excel or csv file to create labels.
           </FormText>
         </FormGroup>
-        <Sample />
+        <h4 className="mt-4 mb-2">Add Samples</h4>
+        <SampleList />
         <div className="d-flex justify-content-center m-5">
           <Button color="primary">Create Labels</Button>
         </div>

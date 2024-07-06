@@ -49,48 +49,15 @@ function Aliquot({ data = "aliquot data", id = "1", remove, update, hasAddAliquo
     <Col xs="auto" className="d-flex align-items-center justify-content-center">
       <FaGripHorizontal style={{ cursor: 'grab' }}/>
     </Col>
-    <Col >
-    <InputGroup>
-      <Input
-          id="concentration"
-          name="concentration"
-          placeholder="concentration"
-          type="text"
-          bsSize="sm"
-          style={{ flexGrow: 5 }}
-        />
-        <Input
-          id="concentrationUnit"
-          name="concentrationUnit"
-          type="select"
-          bsSize="sm"
-          style={{ flexGrow: 1.5, fontSize: '0.7em' }}
-        >
-          <option>
-            mg/mL
-          </option>
-          <option>
-            ug/mL
-          </option>
-          <option>
-            g/mL
-          </option>
-          <option>
-            mg/L
-          </option>
-          <option>
-            g/L
-          </option>
-        </Input>
-    </InputGroup>
-    </Col>
-    <Col>
+    <Col xs="5">
       <InputGroup>
         <Input
           id="volume"
           name="volume"
           placeholder="volume"
-          type="text"
+          type="number"
+          step="0.001"
+          min="0"
           bsSize="sm"
           style={{ flexGrow: 5 }}
         />
@@ -99,7 +66,7 @@ function Aliquot({ data = "aliquot data", id = "1", remove, update, hasAddAliquo
           name="volumeUnit"
           type="select"
           bsSize="sm"
-          style={{ flexGrow: 1, fontSize: '0.7em' }}
+          style={{ flexGrow: 1 }}
         >
           <option>
             mL
@@ -113,16 +80,18 @@ function Aliquot({ data = "aliquot data", id = "1", remove, update, hasAddAliquo
         </Input>
       </InputGroup>
     </Col>
-    <Col xs="2">
+    <Col xs="4">
       <Input
         id="number"
         name="number"
         placeholder="number"
         type="number"
+        step="1"
+        min="0"
         bsSize="sm"
       />
     </Col>
-    <Col xs="auto" className="d-flex align-items-center justify-content-center">
+    <Col xs="1" className="d-flex align-items-center justify-content-center">
       <FaTrash onClick={remove} style={{ cursor: 'pointer' }} />
     </Col>
     <Col xs="1" className="d-flex align-items-center justify-content-center">

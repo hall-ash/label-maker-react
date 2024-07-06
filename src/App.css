@@ -37,5 +37,25 @@
   }
 }
 
+.custom-container {
+  width: 100%; /* Default width for extra small screens */
+}
 
+@media (min-width: 576px) {
+  .custom-container {
+    width: 66.67%; /* 8/12 width for small screens and up */
+  }
+}
+
+@media (min-width: 768px) {
+  .custom-container {
+    width: 50%; /* 6/12 width for medium screens and up */
+  }
+}
+
+@media (min-width: 992px) {
+  .custom-container {
+    width: 41.67%; /* 5/12 width for large screens and up */
+  }
+}
 
