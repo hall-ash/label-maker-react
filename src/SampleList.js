@@ -1,5 +1,5 @@
 import './SampleList.css'
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sample from "./Sample";
 import { Row, Col, Label, FormGroup, Button, Input, InputGroup, Container } from 'reactstrap';
 import { FaTrash, FaGripHorizontal, FaPlusSquare } from 'react-icons/fa';
@@ -8,7 +8,12 @@ import { v4 as uuidv4 } from 'uuid';
 
 function SampleList () {
 
-  const [samples, setSamples] = useState([<Sample />])
+  const [samples, setSamples] = useState([])
+
+  // initialize 1 sample on component mount
+  useEffect(() => {
+    setSamples([{ id: uuidv4() }]);
+  }, []);
   
 
   const addSample = evt => {

@@ -1,48 +1,35 @@
-import React, { useState } from "react";
-import { Row, Col, Label, FormGroup, Button, Input, InputGroup, InputGroupText } from 'reactstrap';
-import { FaTrash, FaGripHorizontal, FaPlusCircle } from 'react-icons/fa';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import React, { useState, useEffect } from "react";
+import { Row, Col, Input, InputGroup } from 'reactstrap';
+import { FaTrash, FaGripHorizontal } from 'react-icons/fa';
 
-function Aliquot({ data = "aliquot data", id = "1", remove, update, hasAddAliquotButton, addAliquot }) {
-  const [editData, setEditData] = useState(data);
-  const [isEditing, setIsEditing] = useState(false);
-
-  const toggleEdit = () => {
-    setIsEditing(edit => !edit);
-  };
-
-  const handleChange = evt => {
-    setEditData(evt.target.value);
-  };
+function Aliquot({ id, remove, onUpdate }) {
+  
 
   const handleDelete = () => remove(id);
 
-  const handleUpdate = evt => {
-    evt.preventDefault();
-    update(id, editData);
-    setIsEditing(false);
+  const initialState = {
+    volume: '',
+    volumeUnit: 'mL',
+    number: '',
   };
 
-  // default todo view
-  let jsx = (
-    <div>
-      <li>{data}</li>
-      <button onClick={toggleEdit}>Edit</button>
-      <button onClick={handleDelete}>X</button>
-    </div>
-  );
+  const [state, setState] = useState(initialState)
 
-  // todo view when editing
-  if (isEditing) {
-    jsx = (
-      <div>
-        <form onSubmit={handleUpdate}>
-          <input type="text" value={editData} onChange={handleChange} />
-          <button>Update!</button>
-        </form>
-      </div>
-    );
-  }
+  const handleInputChange = (e) => {
+
+    const { name, value } = e.target;
+
+    const newState = {
+      ...state,
+      [name]: value,
+    };
+
+    setState(newState);
+
+    // Pass the updated state to the parent
+    onUpdate(id, newState);
+
+  };
 
   return (
   <Row className="g-2 mb-1 align-items-center">
@@ -55,6 +42,8 @@ function Aliquot({ data = "aliquot data", id = "1", remove, update, hasAddAliquo
           id="volume"
           name="volume"
           placeholder="volume"
+          value={state.volume}
+          onChange={handleInputChange}
           type="number"
           step="0.001"
           min="0"
@@ -64,6 +53,8 @@ function Aliquot({ data = "aliquot data", id = "1", remove, update, hasAddAliquo
          <Input
           id="volumeUnit"
           name="volumeUnit"
+          value={state.volumeUnit}
+          onChange={handleInputChange}
           type="select"
           bsSize="sm"
           style={{ flexGrow: 1 }}
@@ -85,20 +76,17 @@ function Aliquot({ data = "aliquot data", id = "1", remove, update, hasAddAliquo
         id="number"
         name="number"
         placeholder="number"
-        type="number"
+        value={state.number}
+        onChange={handleInputChange}
         step="1"
         min="0"
         bsSize="sm"
       />
     </Col>
     <Col xs="1" className="d-flex align-items-center justify-content-center">
-      <FaTrash onClick={remove} style={{ cursor: 'pointer' }} />
+      <FaTrash onClick={handleDelete} style={{ cursor: 'pointer' }} />
     </Col>
-    <Col xs="1" className="d-flex align-items-center justify-content-center">
-      {hasAddAliquotButton && 
-        <FaPlusCircle onClick={addAliquot} style={{ cursor: 'pointer' }} />
-      }
-    </Col>
+    
   </Row>
   )
 }
