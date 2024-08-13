@@ -1,9 +1,9 @@
-import './Sample.css';
+import './Label.css';
 import React from "react";
 import Aliquot from "./Aliquot";
 import CalculateAliquotsModal from './CalculateAliquotsModal';
-import { Row, Col, Label as RSLabel, FormGroup, Input, Container } from 'reactstrap';
-import { FaPlusCircle, FaTimesCircle } from 'react-icons/fa';
+import { Row, Col, Label as RSLabel, FormGroup, Input, Container, Button } from 'reactstrap';
+import { FaPlusSquare, FaTimes } from 'react-icons/fa';
 
 function Label({ id, labeltext, aliquots, removeLabel, addAliquot, removeAliquot, onChange, setAliquots }) {
   const aliquotComponents = aliquots.map(({ id: aliquotId, aliquottext, number }) => (
@@ -23,13 +23,13 @@ function Label({ id, labeltext, aliquots, removeLabel, addAliquot, removeAliquot
   const handleRemoveLabel = () => removeLabel(id);
 
   return (
-    <Container className="mb-1 sample-container" style={{ position: 'relative' }}>
+    <Container className="mb-1 label-container" style={{ position: 'relative' }}>
       <div style={{ position: 'absolute', top: 10, right: 10 }}>
-        <FaTimesCircle onClick={handleRemoveLabel} style={{ cursor: 'pointer', color: 'red' }} />
+        <FaTimes onClick={handleRemoveLabel} style={{ cursor: 'pointer', color: 'black' }} />
       </div>
       <Row className="mt-1">
         <FormGroup>
-          <RSLabel for="mainText">Label Text</RSLabel>
+          <RSLabel for="mainText" className="label-title">Label Text</RSLabel>
           <Input
             id="labeltext"
             name="labeltext"
@@ -39,18 +39,32 @@ function Label({ id, labeltext, aliquots, removeLabel, addAliquot, removeAliquot
           />
         </FormGroup>
       </Row>
-      <Row className="mt-1">
-        <RSLabel>Aliquots</RSLabel>
+      <Row className="mt-1 align-items-center">
         <Col>
-          {aliquotComponents}
+          <RSLabel className="aliquots-title">Aliquots</RSLabel>
         </Col>
-        <Col xs="1" className="d-flex align-items-end">
-          <Row>
-            <FaPlusCircle onClick={handleClick} style={{ cursor: 'pointer', color: 'blue' }} className="mb-2" />
-            <CalculateAliquotsModal handleCalculateAliquotsClick={handleCalculateAliquotsClick} />
-          </Row>
+        <Col>
+          <CalculateAliquotsModal
+            handleCalculateAliquotsClick={handleCalculateAliquotsClick}
+          />
         </Col>
       </Row>
+      {/* <Row className="mt-1">
+        <Col>
+          {aliquotComponents}
+          <div style={{ position: 'absolute', bottom: 30, right: 15 }}>
+            <FaPlusSquare onClick={handleClick} style={{ cursor: 'pointer', color: 'gray' }} />
+          </div>
+        </Col>
+        
+      </Row> */}
+      <Row className="mt-1">
+  <Col className="d-grid" style={{ gridTemplateColumns: '1fr auto' }}>
+    <div>{aliquotComponents}</div>
+    <FaPlusSquare className="add-aliquot-btn" onClick={handleClick} style={{ cursor: 'pointer', color: 'gray', alignSelf: 'end' }} />
+  </Col> 
+</Row>
+
     </Container>
   );
 }

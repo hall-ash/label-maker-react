@@ -1,4 +1,4 @@
-import './SampleList.css'
+import './LabelList.css'
 import React from "react";
 import Label from "./NewLabel";
 import calculateAliquots from "./CalculatePage";
@@ -29,7 +29,7 @@ function LabelList ({ labels, addLabel, removeLabel, addAliquot, removeAliquot, 
       
       {labelComponents}
 
-      <Button className="mt-2 mx-2" size="sm" outline color="primary" type="button" onClick={addLabel}>Add Label</Button>
+      <Button className="mx-1 add-label-btn" outline color="primary" size="sm" type="button" onClick={addLabel}>Add Label</Button>
     </div>
   );
 }

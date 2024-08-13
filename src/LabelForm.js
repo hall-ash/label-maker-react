@@ -40,9 +40,10 @@ function LabelForm() {
   }]);
 
 
-  useEffect(() => {
-    localStorage.setItem("newStartLabel", JSON.stringify(newStartLabel));
-  }, [newStartLabel]);
+  // quota has been exceeded error
+  // useEffect(() => {
+  //   localStorage.setItem("newStartLabel", JSON.stringify(newStartLabel));
+  // }, [newStartLabel]);
 
   
 

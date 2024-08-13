@@ -1,3 +1,4 @@
+import './CalculateAliquotsModal.css';
 import React, { useState } from 'react';
 import { Modal, Button, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label as RSLabel, Input, FormText, InputGroupText, Row, Col, InputGroup } from 'reactstrap';
 import calculateAliquots from './calculateAliquots.js';
@@ -44,8 +45,8 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
 
 
   return (
-    <div>
-      <Button color="primary" onClick={toggle}>
+    <div className="button-div">
+      <Button onClick={toggle} outline color="secondary" className="calculate-aliquots-btn">
         Calculate Aliquots
       </Button>
       <Modal isOpen={modal} toggle={toggle} >
