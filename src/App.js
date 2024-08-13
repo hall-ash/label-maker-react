@@ -1,15 +1,23 @@
 // import logo from './logo.svg';
-import './App.css';
-import LabelForm from './LabelForm';
-import { Container } from 'reactstrap';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import HomePage from './HomePage';
+import CalculatePage from './CalculatePage';
+import Navigation from './Navigation';
 
-function App() {
+const App = () => {
+
   return (
-    <Container className='col-md-7'>
-      <h1 className='mt-3 mb-3 text-center'>Label Maker</h1>
-      <LabelForm />
-    </Container>
+    <Router>
+      <div>
+        <Navigation />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/calculate" element={<CalculatePage />} />
+        </Routes>
+      </div>
+    </Router>
   );
-}
+};
 
 export default App;
