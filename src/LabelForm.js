@@ -4,6 +4,8 @@ import LabelList from "./LabelList";
 import { Form, Button, FormGroup, Label as RSLabel, Input, FormText, Row, Col } from 'reactstrap';
 import ShortUniqueId from 'short-unique-id';
 import axios from 'axios';
+import useLocalStorage from './useLocalStorage'
+import getNewStartPositionAndSkipsDict from './inputProcessing.js';
 
 function LabelForm() {
 
@@ -22,8 +24,7 @@ function LabelForm() {
 
   const uid = new ShortUniqueId({ length: 5 });
 
-  const [newStartLabel, setNewStartLabel] = useState(localStorage.getItem("newStartLabel"));
-
+  const [newStartPosition, setNewStartPosition] = useLocalStorage("newStartPosition");
 
   const [labelInfo, setLabelInfo] = useState(
     {
@@ -40,12 +41,6 @@ function LabelForm() {
   }]);
 
 
-  // quota has been exceeded error
-  // useEffect(() => {
-  //   localStorage.setItem("newStartLabel", JSON.stringify(newStartLabel));
-  // }, [newStartLabel]);
-
-  
 
   const handleLabelInfoChange = (e, labelId, aliquotId) => {
     const { name, value } = e.target;
@@ -113,9 +108,6 @@ function LabelForm() {
 
 
 
-
-
-
   const setLabelAliquots = (labelId, aliquots) => {
 
     const calculatedAliquots = aliquots.map(aliquot => ({...aliquot, id: uid.rnd() }));
@@ -128,14 +120,6 @@ function LabelForm() {
   };
 
 
-//   const setLabelAliquots = (labelId, aliquots) => {
-//     const calculatedAliquots = aliquots.map(aliquot => ({ ...aliquot, id: uid.rnd() }));
-//     setLabels(labels.map(label => 
-//       label.id === labelId
-//         ? { ...label, aliquots: calculatedAliquots }
-//         : label
-//     ));
-// };
 
 
   const handleSubmit = async (e) => {
@@ -156,7 +140,18 @@ function LabelForm() {
     }));
 
 
-    const formData = { ...labelInfo, 'labels': strippedLabels };
+    const { labelType, startLabel, skipLabels } = labelInfo;
+    const { newStartPos, skipsDict } = getNewStartPositionAndSkipsDict(strippedLabels, labelType, startLabel, skipLabels)
+
+    const formData = {
+      'labels': strippedLabels,
+      'label_type': labelType,
+      'start_label': start_label,
+      'skip_labels': skipsDict,
+    }
+
+    // update localStorage with new start position
+    setNewStartPosition(newStartPos);
 
     try {
       const response = await axios.post('http://localhost:5000/api/generate_pdf', {
