@@ -79,6 +79,56 @@
 // };
 
 
+const calculate = (concentration, volume, amounts) => {
+  amounts.sort((a, b) => a - b);
+  const totalMass = concentration * volume;
+  const totalSum = amounts.reduce((a, b) => a + b, 0);
+  const factor = Math.floor(totalMass / totalSum);
+  let remaining_mgs = totalMass % totalSum;
+
+  const aliquots = [];
+  const result = Array(amounts.length).fill(factor);
+
+  let i = 0;
+  while (remaining_mgs >= amounts[0]) {
+    if (remaining_mgs >= amounts[i]) {
+      result[i] += 1;
+      remaining_mgs -= amounts[i];
+    }
+   
+    i = (i + 1) % amounts.length;
+  }
+
+  return result;
+}
+
+
+const calculateAliquotFrequency = (concentration, volume, amounts) => {
+  amounts.sort((a, b) => a - b);
+  const totalMass = concentration * volume;
+  const totalSum = amounts.reduce((a, b) => a + b, 0);
+  const factor = Math.floor(totalMass / totalSum);
+  let remaining_mgs = totalMass % totalSum;
+
+  const aliquots = [];
+  const frequency = Array(amounts.length).fill(factor);
+
+  // loop through the array in reverse (favors larger )
+  let i = amounts.length - 1;
+  while (remaining_mgs >= amounts[0]) {
+    if (remaining_mgs >= amounts[i]) {
+      frequency[i] += 1;
+      remaining_mgs -= amounts[i];
+    }
+   
+    i = (i - 1) % amounts.length;
+  }
+
+  return frequency;
+}
+
+
+
 const calculateAliquots = (concentration, volume, amounts, concentrationUnit="mg/mL", volumeUnit="mL", aliquotMassUnit="mg") => {
 
 
@@ -89,17 +139,8 @@ const calculateAliquots = (concentration, volume, amounts, concentrationUnit="mg
     let remaining_mgs = totalMass % totalSum;
 
     const aliquots = [];
-    const result = Array(amounts.length).fill(factor);
+    const frequency = calculateAliquotFrequency(concentration, volume, amounts);
 
-    let i = 0;
-    while (remaining_mgs >= amounts[0]) {
-      if (remaining_mgs >= amounts[i]) {
-        result[i] += 1;
-        remaining_mgs -= amounts[i];
-      }
-     
-      i = (i + 1) % amounts.length;
-    }
 
     const doRounding = (num) => num > 1 ? Math.round(num * 10) / 10 : Math.round(num * 1000) / 1000;
     const doFormatting = (num) => num > 1 ? num.toFixed(1) : (num * 1000).toFixed(0);
@@ -110,7 +151,7 @@ const calculateAliquots = (concentration, volume, amounts, concentrationUnit="mg
 
       const volume = doFormatting(roundedVol);
       const volumeUnit = roundedVol > 1 ? 'mL' : 'µL';
-      const number = result[i];
+      const number = frequency[i];
 
       aliquots.push({
         aliquottext: `${mass}${aliquotMassUnit}, ${volume}${volumeUnit}`,
