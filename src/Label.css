@@ -1,4 +1,4 @@
-.label-container {
+/* .label-container {
   border-radius: 10px;
   border: 1px solid #ccc;
   padding: 20px;
@@ -23,4 +23,59 @@
 .add-aliquot-btn {
   margin-bottom: 0.18em;
   height: 1.9em;
+} */
+
+/* Label.css */
+
+.label-container {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  /* background-color: #f8f9fa; */
+  border-radius: 0.25rem;
+  box-shadow: 0 0 0.125rem rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.remove-label-icon {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  cursor: pointer;
+  color: black;
+}
+
+.label-title {
+  font-weight: bold;
+  color: #495057;
+}
+
+.label-count-container {
+  display: flex;
+  align-items: baseline;
+}
+
+.label-count {
+  font-size: 20px;
+  font-weight: 500;
+  margin-right: 0.5rem; 
+}
+
+.label-count-input {
+  max-width: 90px;
+}
+
+.label-count-and-add-aliquots-container {
+  display: flex;
+  align-items: baseline;
+}
+
+.aliquots-title {
+  font-weight: bold;
+  color: #495057;
+}
+
+.add-aliquot-btn {
+  cursor: pointer;
+  color: #28a745;
+  font-size: 1rem; 
 }

@@ -1,37 +1,20 @@
-.add-label-btn {
+/* .add-label-btn {
   float: right;
   font-size: 0.8em !important;
-}
-/* .add-label-btn {
-  font-family: 'Arial', sans-serif;
-  font-size: 1rem;
-  padding: 0.5rem 1rem;
-  border: 2px solid #007bff;
-  border-radius: 0.5rem;
-  background-color: transparent;
-  color: #007bff;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: inline-block;
-  text-align: center;
-  text-decoration: none;
-  outline: none;
-}
-
-.btn-outline-custom:hover {
-  background-color: #007bff;
-  color: white;
-  box-shadow: 0 6px 8px rgba(0, 123, 255, 0.4);
-  transform: translateY(-2px);
-}
-
-.btn-outline-custom:active {
-  background-color: #0056b3;
-  border-color: #0056b3;
-  box-shadow: 0 2px 4px rgba(0, 86, 179, 0.2);
-  transform: translateY(0);
 } */
 
-.btn-outline-custom:focus {
+
+/* .btn-outline-custom:focus {
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5);
+} */
+
+.label-list-container {
+  position: relative; /* Set container to relative to position the button absolutely within it */
+  padding-bottom: 3rem; /* Add padding to ensure button is not cut off */
+}
+
+.add-label-btn {
+  position: absolute;
+  bottom: 4rem; /* Position button 1rem from the bottom */
+  right: 1rem; /* Position button 1rem from the right */
 }

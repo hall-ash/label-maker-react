@@ -1,37 +1,58 @@
 import './LabelList.css'
 import React from "react";
-import Label from "./NewLabel";
-import calculateAliquots from "./CalculatePage";
-import { Row, Col, Container, Button } from 'reactstrap';
-import { FaPlusSquare } from 'react-icons/fa';
+import Label from "./Label";
+import { Button } from 'reactstrap';
 
 function LabelList ({ labels, addLabel, removeLabel, addAliquot, removeAliquot, onChange, setLabelAliquots }) {
   
-  const labelComponents = labels.map(({ id, labeltext, aliquots, labelcount, displayAliquots }) => (
-    <Label 
-      id={id}
-      key={id}
-      labeltext={labeltext}
-      labelCount={labelcount}
-      aliquots={aliquots}
-      removeLabel={removeLabel}
-      addAliquot={addAliquot}
-      removeAliquot={removeAliquot}
-      onChange={onChange}
-      setAliquots={setLabelAliquots}
-      displayAliquots={displayAliquots}
-    /> 
+  // const labelComponents = labels.map(({ id, labeltext, aliquots, labelcount, displayAliquots }) => (
+  //   <Label 
+  //     id={id}
+  //     key={id}
+  //     labeltext={labeltext}
+  //     labelCount={labelcount}
+  //     aliquots={aliquots}
+  //     removeLabel={removeLabel}
+  //     addAliquot={addAliquot}
+  //     removeAliquot={removeAliquot}
+  //     onChange={onChange}
+  //     setAliquots={setLabelAliquots}
+  //     displayAliquots={displayAliquots}
+  //   /> 
+  // ));
+
+  // return (
+  //   <div>
+  //     {labelComponents}
+  //     <Button className="mx-1 add-label-btn" outline color="primary" size="sm" type="button" onClick={addLabel}>Add Label</Button>
+  //   </div>
+  // );
+
+  const labelComponents = labels.map(({ id, labeltext, aliquots, labelcount, displayAliquots }, index) => (
+    <div key={id}>
+      <Label 
+        id={id}
+        labeltext={labeltext}
+        labelCount={labelcount}
+        aliquots={aliquots}
+        removeLabel={removeLabel}
+        addAliquot={addAliquot}
+        removeAliquot={removeAliquot}
+        onChange={onChange}
+        setAliquots={setLabelAliquots}
+        displayAliquots={displayAliquots}
+      />
+      {/* Only render the button inside the last label container */}
+      {index === labels.length - 1 && (
+        <Button className="add-label-btn" outline color="primary" size="sm" type="button" onClick={addLabel}>Add Label</Button>
+      )}
+    </div>
   ));
 
-
-
-
   return (
-    <div>
-      
+    <div className="label-list-container">
       {labelComponents}
-
-      <Button className="mx-1 add-label-btn" outline color="primary" size="sm" type="button" onClick={addLabel}>Add Label</Button>
+      {/* <Button className="add-label-btn" outline color="primary" size="sm" type="button" onClick={addLabel}>Add Label</Button> */}
     </div>
   );
 }

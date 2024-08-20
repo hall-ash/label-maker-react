@@ -8,7 +8,7 @@ function Aliquot({ id, aliquottext, number, remove, onChange }) {
 
   return (
     <Row className="g-2 mb-1 align-items-center">
-      <Col xs="5">
+      <Col xs="6">
         <InputGroup>
           <Input
             id="aliquottext"
@@ -22,7 +22,7 @@ function Aliquot({ id, aliquottext, number, remove, onChange }) {
           />
         </InputGroup>
       </Col>
-      <Col xs="4">
+      <Col xs="3">
         <Input
           id="number"
           name="number"
