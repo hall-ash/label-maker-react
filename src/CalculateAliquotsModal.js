@@ -28,12 +28,17 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
     });
   };
 
+  const parseAmounts = input => {
+    const amounts = input.match(/\d+(\.\d+)?/g);
+    return amounts ? amounts.map(Number) : [];
+  };
+
   const handleSubmit = e => {
     e.preventDefault();
 
     const { concentration, volume, amounts } = formData;
 
-    const numAmounts = amounts.split(' ').map(amount => Number(amount));
+    const numAmounts = parseAmounts(amounts);
 
     const aliquots = calculateAliquots(concentration, volume, numAmounts, concentrationUnit, volumeUnit, aliquotMassUnit);
 
