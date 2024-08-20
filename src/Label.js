@@ -94,7 +94,7 @@ function Label({ id, labeltext, labelCount, aliquots, removeLabel, addAliquot, r
       <div className="remove-label-icon">
         <FaTimes onClick={handleRemoveLabel} />
       </div>
-      <Row className="mt-2">
+      <Row className="mt-1">
         <FormGroup className="w-100">
           <RSLabel for="labeltext" className="label-title">Label Text</RSLabel>
           <Input
@@ -106,7 +106,7 @@ function Label({ id, labeltext, labelCount, aliquots, removeLabel, addAliquot, r
           />
         </FormGroup>
       </Row>
-      <Row className="mt-2 label-count-and-add-aliquots-container ">
+      <Row className="mt-1 label-count-and-add-aliquots-container ">
         {!displayAliquots && (
           <Col xs="4">
             <FormGroup className="label-count-container">
