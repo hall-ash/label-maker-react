@@ -1,11 +1,15 @@
 import './Label.css';
-import React from "react";
+import React, { useState } from "react";
 import Aliquot from "./Aliquot";
 import CalculateAliquotsModal from './CalculateAliquotsModal';
 import { Row, Col, Label as RSLabel, FormGroup, Input, Container, Button } from 'reactstrap';
 import { FaPlusSquare, FaTimes } from 'react-icons/fa';
 
-function Label({ id, labeltext, aliquots, removeLabel, addAliquot, removeAliquot, onChange, setAliquots }) {
+function Label({ id, labeltext, labelCount, aliquots, removeLabel, addAliquot, removeAliquot, onChange, setAliquots, displayAliquots }) {
+  
+  
+
+
   const aliquotComponents = aliquots.map(({ id: aliquotId, aliquottext, number }) => (
     <Aliquot
       id={aliquotId}
@@ -21,6 +25,10 @@ function Label({ id, labeltext, aliquots, removeLabel, addAliquot, removeAliquot
   const handleClick = () => addAliquot(id);
   const handleCalculateAliquotsClick = (aliquots) => setAliquots(id, aliquots);
   const handleRemoveLabel = () => removeLabel(id);
+  const toggleShowAliquots = (e, id) => {
+    handleChange({ target: { name: "displayAliquots", checked: !displayAliquots, value: !displayAliquots } }, id);
+  };
+
 
   return (
     <Container className="mb-1 label-container" style={{ position: 'relative' }}>
@@ -29,7 +37,7 @@ function Label({ id, labeltext, aliquots, removeLabel, addAliquot, removeAliquot
       </div>
       <Row className="mt-1">
         <FormGroup>
-          <RSLabel for="mainText" className="label-title">Label Text</RSLabel>
+          <RSLabel for="labeltext" className="label-title">Label Text</RSLabel>
           <Input
             id="labeltext"
             name="labeltext"
@@ -39,32 +47,47 @@ function Label({ id, labeltext, aliquots, removeLabel, addAliquot, removeAliquot
           />
         </FormGroup>
       </Row>
-      <Row className="mt-1 align-items-center">
+      <Row>
+      { !displayAliquots && 
         <Col>
-          <RSLabel className="aliquots-title">Aliquots</RSLabel>
+          <FormGroup>
+            <RSLabel for="labelcount">Label Count</RSLabel>
+            <Input
+              id="labelcount"
+              name="labelcount"
+              type="number"
+              value={labelCount}
+              onChange={handleChange}
+              min="0"
+            />
+            </FormGroup>
         </Col>
+      }
         <Col>
-          <CalculateAliquotsModal
-            handleCalculateAliquotsClick={handleCalculateAliquotsClick}
-          />
+          <Button onClick={toggleShowAliquots}>{displayAliquots ? "Remove" : "Add"} Aliquots</Button>
         </Col>
       </Row>
-      {/* <Row className="mt-1">
-        <Col>
-          {aliquotComponents}
-          <div style={{ position: 'absolute', bottom: 30, right: 15 }}>
-            <FaPlusSquare onClick={handleClick} style={{ cursor: 'pointer', color: 'gray' }} />
-          </div>
-        </Col>
-        
-      </Row> */}
-      <Row className="mt-1">
-  <Col className="d-grid" style={{ gridTemplateColumns: '1fr auto' }}>
-    <div>{aliquotComponents}</div>
-    <FaPlusSquare className="add-aliquot-btn" onClick={handleClick} style={{ cursor: 'pointer', color: 'gray', alignSelf: 'end' }} />
-  </Col> 
-</Row>
+      { displayAliquots &&
+      <div>
+        <Row className="mt-1 align-items-center">
+          <Col>
+            <RSLabel className="aliquots-title">Aliquots</RSLabel>
+          </Col>
+          <Col>
+            <CalculateAliquotsModal
+              handleCalculateAliquotsClick={handleCalculateAliquotsClick}
+            />
+          </Col>
+        </Row>
 
+        <Row className="mt-1">
+          <Col className="d-grid" style={{ gridTemplateColumns: '1fr auto' }}>
+            <div>{aliquotComponents}</div>
+            <FaPlusSquare className="add-aliquot-btn" onClick={handleClick} style={{ cursor: 'pointer', color: 'gray', alignSelf: 'end' }} />
+          </Col> 
+        </Row>
+      </div>
+      }
     </Container>
   );
 }
