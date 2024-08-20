@@ -1,19 +1,14 @@
 import './LabelForm.css'
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import LabelList from "./LabelList";
+import DownloadModal from './DownloadModal';
 import { Form, Button, FormGroup, Label as RSLabel, Input, FormText, Row, Col } from 'reactstrap';
 import ShortUniqueId from 'short-unique-id';
 import axios from 'axios';
-import useLocalStorage from './useLocalStorage'
-import getNewStartPositionAndSkipsDict from './inputProcessing.js';
+
 
 function LabelForm() {
 
-  const [newStartLabelChecked, setNewStartLabelChecked] = useState(false);
-
-  const toggleNewStartLabelCheck = () => setNewStartLabelChecked(!newStartLabelChecked);
-
-  const [output, setOutput] = useState(null);
 
   const labelTypeOptions = [
     "LCRY-1700", // / RNBW-2200, label size: 33mm x 13mm, 17 rows x 5 cols",
@@ -24,7 +19,6 @@ function LabelForm() {
 
   const uid = new ShortUniqueId({ length: 5 });
 
-  const [newStartPosition, setNewStartPosition] = useLocalStorage("newStartPosition");
 
   const [labelInfo, setLabelInfo] = useState(
     {
@@ -34,15 +28,26 @@ function LabelForm() {
       'labelFile': '',
   });
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [hasBorder, setHasBorder] = useState(false);
+  const [downloadLink, setDownloadLink] = useState('');
+
+  
   const [labels, setLabels] = useState([{
     id: uid.rnd(),
     labeltext: '',
-    aliquots: Array.from({ length: 3 }, () => ({ id: uid.rnd(), aliquottext: '', number: '' })),
+    labelcount: 0,
+    displayAliquots: false,
+    aliquots: Array.from({ length: 1 }, () => ({ id: uid.rnd(), aliquottext: '', number: '' })),
   }]);
 
 
+  const handleModalToggle = () => setIsModalOpen(!isModalOpen);
+  const handleBorderToggle = () => setHasBorder(!hasBorder);
+  
 
-  const handleLabelInfoChange = (e, labelId, aliquotId) => {
+
+  const handleLabelInfoChange = e => {
     const { name, value } = e.target;
 
     setLabelInfo({
@@ -69,12 +74,15 @@ function LabelForm() {
         }
         return label;
       }));
+
   };
 
   const addLabel = () => {
     const newLabel = { 
       id: uid.rnd(),
       labeltext: '',
+      displayAliquots: false,
+      count: 0,
       aliquots: Array.from({ length: 1 }, () => ({ id: uid.rnd(), aliquottext: '', number: '' })),
     };
 
@@ -120,20 +128,16 @@ function LabelForm() {
   };
 
 
-
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // calculate newStartLabel 
 
-    // strip ids from labels and aliquots and remove labels or aliquots with no text
-   
-    
-    const strippedLabels = labels
+    const formattedLabels = labels
       .filter(label => label.labeltext)
-      .map(({ labeltext, aliquots }) => ({
-        name: labeltext,
+      .map(({ labeltext, aliquots, labelcount, displayAliquots }) => ({
+        name: labeltext.trim(),
+        count: labelcount, 
+        use_aliquots: displayAliquots,
         aliquots: aliquots
           .filter(aliquot => aliquot.aliquottext && aliquot.number)
           .map(({ aliquottext, number }) => ({ text: aliquottext, number })),
@@ -141,26 +145,34 @@ function LabelForm() {
 
 
     const { labelType, startLabel, skipLabels } = labelInfo;
-    const { newStartPos, skipsDict } = getNewStartPositionAndSkipsDict(strippedLabels, labelType, startLabel, skipLabels)
 
     const formData = {
-      'labels': strippedLabels,
-      'label_type': labelType,
-      'start_label': start_label,
-      'skip_labels': skipsDict,
-    }
+      'labels': formattedLabels,
+      'sheet_type': labelType,
+      'start_label': startLabel,
+      'skip_labels': skipLabels,
+      'border': hasBorder,
+    };
 
-    // update localStorage with new start position
-    setNewStartPosition(newStartPos);
+    console.log('formData', formData)
+
 
     try {
-      const response = await axios.post('http://localhost:5000/api/generate_pdf', {
-        input: formData,
+      const response = await axios.post('http://localhost:5000/api/generate_pdf', formData, {
+        responseType: 'blob' // Important for handling binary data
       });
 
-      setOutput(response.data);
+      // Create a blob from the response
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+
+      // Create a URL for the blob
+      const url = window.URL.createObjectURL(blob);
+
+      // Set the download link and open the modal
+      setDownloadLink(url);
+      setIsModalOpen(true);
     } catch (error) {
-      console.error('There was a problem with the axios operation:', error);
+      console.error('Error downloading the file:', error);
     }
     
   };
@@ -168,6 +180,7 @@ function LabelForm() {
 
 
   return (
+    <div>
     <Form onSubmit={handleSubmit}>
       <FormGroup>
         <RSLabel for="labelType">Label Type</RSLabel>
@@ -194,24 +207,24 @@ function LabelForm() {
             onChange={handleLabelInfoChange}
             />
         </Col>
-        
-        {
-        null
-        && 
         <Col>
-          <Input
-            id="checkbox2"
-            type="checkbox"
+        <FormGroup check>
+           <RSLabel check>
+              Add Border 
+            </RSLabel>
+          <Input 
+              type="checkbox" 
+              id = "border"
+              name="border"
+              value={hasBorder}
+              onChange={handleBorderToggle}
           />
-          {' '}
-          <RSLabel check>
-            Start from label {newStartLabel}
-          </RSLabel>
+            {' '}
+           
+          </FormGroup>
         </Col>
-      }
-        
       </Row>
-      <FormGroup>
+      <FormGroup >
         <RSLabel for="skipLabels">Skip Labels</RSLabel>
         <Input
           id="skipLabels"
@@ -245,8 +258,10 @@ function LabelForm() {
       <div className="d-flex justify-content-center m-5">
         <Button color="primary" type="submit">Create Labels</Button>
       </div>
-      {output && <div>Response: {JSON.stringify(output)}</div>}
+  
     </Form>
+      <DownloadModal isOpen={isModalOpen} toggle={handleModalToggle} downloadLink={downloadLink} />
+    </div>
   );
 }
 
