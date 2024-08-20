@@ -7,17 +7,19 @@ import { FaPlusSquare } from 'react-icons/fa';
 
 function LabelList ({ labels, addLabel, removeLabel, addAliquot, removeAliquot, onChange, setLabelAliquots }) {
   
-  const labelComponents = labels.map(({ id, labeltext, aliquots }) => (
+  const labelComponents = labels.map(({ id, labeltext, aliquots, labelcount, displayAliquots }) => (
     <Label 
       id={id}
       key={id}
       labeltext={labeltext}
+      labelCount={labelcount}
       aliquots={aliquots}
       removeLabel={removeLabel}
       addAliquot={addAliquot}
       removeAliquot={removeAliquot}
       onChange={onChange}
       setAliquots={setLabelAliquots}
+      displayAliquots={displayAliquots}
     /> 
   ));
 
@@ -35,17 +37,3 @@ function LabelList ({ labels, addLabel, removeLabel, addAliquot, removeAliquot, 
 }
 
 export default LabelList;
-
-
-// return (
-//     <Container className='sample-list-container'>
-//       <Row>
-//         <Col className='flex-grow-1 sample-list-col'>
-//           {labelComponents}
-//         </Col>
-//         <Col xs="1" className="d-flex flex-column justify-content-end">
-//           <FaPlusSquare onClick={addLabel} style={{ cursor: 'pointer' }} />
-//         </Col>
-//       </Row>
-//     </Container>
-//   );
