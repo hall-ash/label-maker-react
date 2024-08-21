@@ -139,7 +139,7 @@ function LabelForm() {
         count: labelcount, 
         use_aliquots: displayAliquots,
         aliquots: aliquots
-          .filter(aliquot => aliquot.aliquottext && aliquot.number)
+          .filter(aliquot => aliquot.number)
           .map(({ aliquottext, number }) => ({ text: aliquottext, number })),
     }));
 
