@@ -55,4 +55,22 @@ const calculateAliquots = (concentration, volume, amounts, concentrationUnit="mg
     return aliquots;
   };
 
+
+const validateRangeInput = input => {
+  // check valid characters
+  const validCharacters = /^[\w\s\-,]*$/.test(input)
+
+  if (!validCharacters) {
+    return false;
+  }
+
+  // strip input of characters that aren't a letter or digit
+  input = input.replace(/[\s\-,]/g, '');
+
+  // check correct pattern
+  const pattern = /^([a-zA-Z]\d{1,2})+$/;
+  return pattern.test(input);
+
+};
+
 export default calculateAliquots;
