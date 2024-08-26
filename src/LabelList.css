@@ -1,20 +1,10 @@
-/* .add-label-btn {
-  float: right;
-  font-size: 0.8em !important;
-} */
-
-
-/* .btn-outline-custom:focus {
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5);
-} */
-
 .label-list-container {
-  position: relative; /* Set container to relative to position the button absolutely within it */
-  padding-bottom: 3rem; /* Add padding to ensure button is not cut off */
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 .add-label-btn {
-  position: absolute;
-  bottom: 4.5rem; /* Position button 1rem from the bottom */
-  right: 1rem; /* Position button 1rem from the right */
+  margin-top: 10px;
+  align-self: flex-end;
 }

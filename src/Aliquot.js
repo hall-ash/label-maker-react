@@ -1,9 +1,9 @@
 import React from "react";
 import { Row, Col, Input, InputGroup } from 'reactstrap';
 import { FaTrash } from 'react-icons/fa';
+import './Aliquot.css';
 
-function Aliquot({ id, aliquottext, number, remove, onChange }) {
-
+function Aliquot({ aliquottext, number, remove, onChange }) {
   const handleChange = e => onChange(e);
 
   return (
@@ -18,7 +18,7 @@ function Aliquot({ id, aliquottext, number, remove, onChange }) {
             onChange={handleChange}
             type="text"
             bsSize="sm"
-            style={{ flexGrow: 5 }}
+            className="aliquot-input"
           />
         </InputGroup>
       </Col>
@@ -32,11 +32,12 @@ function Aliquot({ id, aliquottext, number, remove, onChange }) {
           step="1"
           min="0"
           bsSize="sm"
+          className="aliquot-number"
           onChange={handleChange}
         />
       </Col>
       <Col xs="1" className="d-flex align-items-center justify-content-center">
-        <FaTrash onClick={remove} style={{ cursor: 'pointer' }} />
+        <FaTrash onClick={remove} className="trash-icon" />
       </Col>
     </Row>
   );

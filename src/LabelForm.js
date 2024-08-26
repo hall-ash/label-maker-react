@@ -3,6 +3,7 @@
 import './LabelForm.css'
 import React, { useState } from "react";
 import LabelList from "./LabelList";
+import LoadingSpinner from './LoadingSpinner';
 import DownloadModal from './DownloadModal';
 import { Form, Button, FormGroup, Label as RSLabel, Input, FormText, Row, Col } from 'reactstrap';
 import ShortUniqueId from 'short-unique-id';
@@ -22,6 +23,7 @@ function LabelForm() {
   const uid = new ShortUniqueId({ length: 5 });
 
 
+  const [fileReady, setFileReady] = useState(true);
   const [labelInfo, setLabelInfo] = useState(
     {
       'labelType': labelTypeOptions[0], // use the first option as default
@@ -160,6 +162,8 @@ function LabelForm() {
 
 
     try {
+      setFileReady(false);
+
       const response = await axios.post('http://192.168.134.118:5000/api/generate_pdf', formData, {
         responseType: 'blob' // Important for handling binary data
       });
@@ -170,6 +174,7 @@ function LabelForm() {
       // Create a URL for the blob
       const url = window.URL.createObjectURL(blob);
 
+      setFileReady(true);
       // Set the download link and open the modal
       setDownloadLink(url);
       setIsModalOpen(true);
@@ -181,86 +186,92 @@ function LabelForm() {
 
   return (
     <div className="label-form-container">
-      <Form onSubmit={handleSubmit}>
-        <FormGroup className="mb-3">
-          <RSLabel for="labelType" className="form-label">Label Type</RSLabel>
-          <Input
-            id="labelType"
-            name="labelType"
-            type="select"
-            value={labelInfo.labelType}
-            onChange={handleLabelInfoChange}
-          >
-            {labelTypeOptions.map((labelType, i) => <option key={i}>{labelType}</option>)}
-          </Input>
-        </FormGroup>
-        <Row className="row-cols-lg-auto g-3 align-items-end mb-4">
-          <Col>
-            <RSLabel for="startLabel" className="form-label">Start On Label:</RSLabel>
-          </Col>
-          <Col>
+      { fileReady ?
+        <>
+        <Form onSubmit={handleSubmit}>
+          <FormGroup className="mb-3">
+            <RSLabel for="labelType" className="form-label">Label Type</RSLabel>
             <Input
-              id="startLabel"
-              name="startLabel"
-              type="text"
-              value={labelInfo.startLabel}
+              id="labelType"
+              name="labelType"
+              type="select"
+              value={labelInfo.labelType}
               onChange={handleLabelInfoChange}
-              className="form-input form-input-narrow"
-            />
-          </Col>
-          <Col>
-            <FormGroup check className="d-flex align-items-center form-check-group">
-              <RSLabel check className="form-check-label">
-                Add Border
-              </RSLabel>
-              <Input 
-                type="checkbox" 
-                id="border"
-                name="border"
-                checked={hasBorder} // Changed to checked
-                onChange={handleBorderToggle}
-                className="form-check-input"
+            >
+              {labelTypeOptions.map((labelType, i) => <option key={i}>{labelType}</option>)}
+            </Input>
+          </FormGroup>
+          <Row className="row-cols-lg-auto g-3 align-items-end mb-4">
+            <Col>
+              <RSLabel for="startLabel" className="form-label">Start On Label:</RSLabel>
+            </Col>
+            <Col>
+              <Input
+                id="startLabel"
+                name="startLabel"
+                type="text"
+                value={labelInfo.startLabel}
+                onChange={handleLabelInfoChange}
+                className="form-input form-input-narrow"
               />
-            </FormGroup>
-          </Col>
-        </Row>
-        <FormGroup className="mb-3">
-          <RSLabel for="skipLabels" className="form-label">Skip Labels</RSLabel>
-          <Input
-            id="skipLabels"
-            name="skipLabels"
-            type="textarea"
-            placeholder={`1: A1-D4, E17${String.fromCharCode(10)}2: B2-D5`}
-            value={labelInfo.skipLabels}
-            onChange={handleLabelInfoChange}
-            className="form-textarea"
+            </Col>
+            <Col>
+              <FormGroup check className="d-flex align-items-right form-check-group">
+                <RSLabel check className="form-check-label">
+                  Add Border
+                </RSLabel>
+                <Input 
+                  type="checkbox" 
+                  id="border"
+                  name="border"
+                  checked={hasBorder} // Changed to checked
+                  onChange={handleBorderToggle}
+                  className="form-check-input align-items-end"
+                />
+              </FormGroup>
+            </Col>
+          </Row>
+          <FormGroup className="mb-3">
+            <RSLabel for="skipLabels" className="form-label">Skip Labels</RSLabel>
+            <Input
+              id="skipLabels"
+              name="skipLabels"
+              type="textarea"
+              placeholder={`1: A1-D4, E17${String.fromCharCode(10)}2: B2-D5`}
+              value={labelInfo.skipLabels}
+              onChange={handleLabelInfoChange}
+              className="form-textarea"
+            />
+          </FormGroup>
+          <FormGroup className="mb-3">
+            <RSLabel for="labelFile" className="form-label">Label File</RSLabel>
+            <Input
+              id="labelFile"
+              name="labelFile"
+              type="file"
+              onChange={handleLabelInfoChange}
+              className="form-file"
+            />
+            <FormText className="form-text-info">Upload an excel or csv file to create labels.</FormText>
+          </FormGroup>
+          <LabelList 
+            labels={labels} 
+            addLabel={addLabel}
+            removeLabel={removeLabel}
+            addAliquot={addAliquot}
+            removeAliquot={removeAliquot}
+            onChange={handleLabelChange}
+            setLabelAliquots={setLabelAliquots}
           />
-        </FormGroup>
-        <FormGroup className="mb-3">
-          <RSLabel for="labelFile" className="form-label">Label File</RSLabel>
-          <Input
-            id="labelFile"
-            name="labelFile"
-            type="file"
-            onChange={handleLabelInfoChange}
-            className="form-file"
-          />
-          <FormText className="form-text-info">Upload an excel or csv file to create labels.</FormText>
-        </FormGroup>
-        <LabelList 
-          labels={labels} 
-          addLabel={addLabel}
-          removeLabel={removeLabel}
-          addAliquot={addAliquot}
-          removeAliquot={removeAliquot}
-          onChange={handleLabelChange}
-          setLabelAliquots={setLabelAliquots}
-        />
-        <div className="form-submit-container">
-          <Button color="primary" type="submit">Create Labels</Button>
-        </div>
-      </Form>
-      <DownloadModal isOpen={isModalOpen} toggle={handleModalToggle} downloadLink={downloadLink} />
+          <div className="form-submit-container">
+            <Button color="primary" type="submit">Create Labels</Button>
+          </div>
+        </Form>
+        <DownloadModal isOpen={isModalOpen} toggle={handleModalToggle} downloadLink={downloadLink} />
+      </>
+      : 
+      <LoadingSpinner />
+      }
     </div>
   );
 

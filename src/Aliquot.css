@@ -1,0 +1,13 @@
+.aliquot-input {
+  width: 100%;
+}
+
+.aliquot-number {
+  width: 80px;
+}
+
+.trash-icon {
+  font-size: 1.2em;
+  color: #dc3545;
+  cursor: pointer;
+}

@@ -1,81 +1,41 @@
-/* .label-container {
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  padding: 20px;
-  padding-top: 10px;
-  margin-left: 0;
-  margin-right: 0;
-}
-
-.label-container:hover {
-  box-shadow: 0 1px 8px rgba(202, 202, 202, 0.4);
-}
-
-.label-title {
-  margin-left: 0.1em;
-}
-
-.aliquots-title {
-  font-size: 0.9em;
-  margin-left: 0.1em;
-}
-
-.add-aliquot-btn {
-  margin-bottom: 0.18em;
-  height: 1.9em;
-} */
-
-/* Label.css */
-
 .label-container {
-  margin-bottom: 1rem;
-  padding: 1rem;
-  /* background-color: #f8f9fa; */
-  border-radius: 0.25rem;
-  box-shadow: 0 0 0.125rem rgba(0, 0, 0, 0.2);
+  border: 1px solid #dee2e6;
+  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 15px;
+  background-color: #f8f9fa;
   position: relative;
 }
 
 .remove-label-icon {
   position: absolute;
-  top: 5px;
+  top: 10px;
   right: 10px;
   cursor: pointer;
-  color: black;
 }
 
-.label-title {
+.label-title, .label-count, .aliquots-title {
   font-weight: bold;
   color: #495057;
 }
 
-.label-count-container {
+.label-count-container, .label-count-input {
   display: flex;
-  align-items: baseline;
-}
-
-.label-count {
-  font-size: 20px;
-  font-weight: 500;
-  margin-right: 0.5rem; 
+  align-items: center;
 }
 
 .label-count-input {
-  max-width: 90px;
+  width: 60px;
+}
+
+.add-aliquot-btn {
+  font-size: 1.5em;
+  color: gray;
+  align-self: end;
 }
 
 .label-count-and-add-aliquots-container {
   display: flex;
-  align-items: baseline;
-}
-
-.aliquots-title {
-  font-weight: bold;
-  color: #495057;
-}
-
-.add-aliquot-btn {
-  cursor: pointer;
-  color: #28a745;
-  font-size: 1rem; 
+  justify-content: space-between;
+  align-items: center;
 }
