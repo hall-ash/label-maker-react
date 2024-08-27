@@ -86,7 +86,7 @@ function LabelForm() {
       id: uid.rnd(),
       labeltext: '',
       displayAliquots: false,
-      count: 0,
+      labelcount: 0,
       aliquots: Array.from({ length: 1 }, () => ({ id: uid.rnd(), aliquottext: '', number: '' })),
     };
 
@@ -158,11 +158,12 @@ function LabelForm() {
       'border': hasBorder,
     };
 
-    //console.log('formData', formData)
+    console.log('formData', formData)
 
 
     try {
       setFileReady(false);
+
 
       const response = await axios.post('http://192.168.134.118:5000/api/generate_pdf', formData, {
         responseType: 'blob' // Important for handling binary data
@@ -216,19 +217,19 @@ function LabelForm() {
               />
             </Col>
             <Col>
-              <FormGroup check className="d-flex align-items-right form-check-group">
-                <RSLabel check className="form-check-label">
-                  Add Border
-                </RSLabel>
-                <Input 
-                  type="checkbox" 
-                  id="border"
-                  name="border"
-                  checked={hasBorder} // Changed to checked
-                  onChange={handleBorderToggle}
-                  className="form-check-input align-items-end"
-                />
-              </FormGroup>
+             <FormGroup check className="d-flex align-items-center form-check-group">
+              <Input
+                type="checkbox"
+                id="border"
+                name="border"
+                checked={hasBorder}
+                onChange={handleBorderToggle}
+                className="form-check-input"
+              />
+              <RSLabel check className="form-check-label ms-2">
+                Add Border
+              </RSLabel>
+            </FormGroup>
             </Col>
           </Row>
           <FormGroup className="mb-3">
