@@ -28,7 +28,7 @@ function LabelList ({ labels, addLabel, removeLabel, addAliquot, removeAliquot, 
   //   </div>
   // );
 
-  const labelComponents = labels.map(({ id, labeltext, aliquots, labelcount, displayAliquots }, index) => (
+  const labelComponents = labels.map(({ id, labeltext, aliquots, labelcount, displayAliquots }) => (
     <div key={id}>
       <Label 
         id={id}
@@ -42,19 +42,16 @@ function LabelList ({ labels, addLabel, removeLabel, addAliquot, removeAliquot, 
         setAliquots={setLabelAliquots}
         displayAliquots={displayAliquots}
       />
-      {/* Only render the button inside the last label container */}
-      {index === labels.length - 1 && (
-        <Button className="add-label-btn" outline color="primary" size="sm" type="button" onClick={addLabel}>Add Label</Button>
-      )}
     </div>
   ));
 
   return (
     <div className="label-list-container">
       {labelComponents}
-      {/* <Button className="add-label-btn" outline color="primary" size="sm" type="button" onClick={addLabel}>Add Label</Button> */}
+      <Button className="add-label-btn" outline color="primary" size="sm" type="button" onClick={addLabel}>Add Label</Button>
     </div>
   );
+
 }
 
 export default LabelList;
