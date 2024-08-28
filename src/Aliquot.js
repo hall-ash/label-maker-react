@@ -7,8 +7,7 @@ function Aliquot({ aliquottext, number, remove, onChange }) {
   const handleChange = e => onChange(e);
 
   return (
-    <Row className="g-2 mb-1 align-items-center">
-      <Col xs="6">
+    <div className="aliquot-input-container">
         <InputGroup>
           <Input
             id="aliquottext"
@@ -18,11 +17,10 @@ function Aliquot({ aliquottext, number, remove, onChange }) {
             onChange={handleChange}
             type="text"
             bsSize="sm"
-            className="aliquot-input"
+            className="aliquot-text-input"
           />
         </InputGroup>
-      </Col>
-      <Col xs="3">
+  
         <Input
           id="number"
           name="number"
@@ -32,14 +30,13 @@ function Aliquot({ aliquottext, number, remove, onChange }) {
           step="1"
           min="0"
           bsSize="sm"
-          className="aliquot-number"
+          className="aliquot-number-input"
           onChange={handleChange}
         />
-      </Col>
-      <Col xs="1" className="d-flex align-items-center justify-content-center">
+  
         <FaTrash onClick={remove} className="trash-icon" />
-      </Col>
-    </Row>
+     
+    </div>
   );
 }
 
