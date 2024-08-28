@@ -31,7 +31,8 @@
 .add-aliquot-btn {
   font-size: 1.5em;
   color: gray;
-  align-self: flex-end;
+  /*margin-top: auto; */
+  align-items: flex-end;
 }
 
 .label-count-and-add-aliquots-container {
@@ -42,5 +43,21 @@
 
 .aliquots-container {
   display: flex;
+}
+
+.aliquots-column {
+  display: flex;
   flex-direction: column;
+  flex: 1; /* allow container to grow and take up remaining space */
+}
+
+.add-aliquot-btn-column {
+  display: flex;
+  align-items: flex-end;
+  /* max min ideal_size */
+  flex: 0 1 auto;
+  margin-bottom: 0.21rem;
+  /* 0 => don't allow column to grow*/
+  /* 1 => allow column to shrink */
+  /* auto => allow column to only take up space needed to fit content */
 }
