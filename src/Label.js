@@ -79,8 +79,12 @@ function Label({ id, labeltext, labelCount, aliquots, removeLabel, addAliquot, r
             </Col>
           </Row>
           <div className="aliquots-container">
-            {aliquotComponents}
-            <FaPlusSquare className="add-aliquot-btn" onClick={handleClick} style={{ cursor: 'pointer' }} />
+            <div className="aliquots-column">
+              {aliquotComponents}
+            </div>
+            <div className="add-aliquot-btn-column">
+              <FaPlusSquare className="add-aliquot-btn" onClick={handleClick} style={{ cursor: 'pointer' }} />
+            </div>
           </div>
         </div>
       )}
