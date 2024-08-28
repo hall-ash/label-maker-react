@@ -1,5 +1,5 @@
 import React from "react";
-import { Row, Col, Input, InputGroup } from 'reactstrap';
+import { Input, InputGroup } from 'reactstrap';
 import { FaTrash } from 'react-icons/fa';
 import './Aliquot.css';
 
