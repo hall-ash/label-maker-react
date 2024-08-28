@@ -31,11 +31,16 @@
 .add-aliquot-btn {
   font-size: 1.5em;
   color: gray;
-  align-self: end;
+  align-self: flex-end;
 }
 
 .label-count-and-add-aliquots-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.aliquots-container {
+  display: flex;
+  flex-direction: column;
 }

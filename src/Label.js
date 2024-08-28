@@ -78,14 +78,10 @@ function Label({ id, labeltext, labelCount, aliquots, removeLabel, addAliquot, r
               <CalculateAliquotsModal handleCalculateAliquotsClick={handleCalculateAliquotsClick} />
             </Col>
           </Row>
-          <Row className="mt-1">
-            <Col xs="8">
-              <div>{aliquotComponents}</div>
-            </Col>
-            <Col className="d-grid" style={{ gridTemplateColumns: '1' }}>
-              <FaPlusSquare className="add-aliquot-btn" onClick={handleClick} style={{ cursor: 'pointer' }} />
-            </Col> 
-          </Row>
+          <div className="aliquots-container">
+            {aliquotComponents}
+            <FaPlusSquare className="add-aliquot-btn" onClick={handleClick} style={{ cursor: 'pointer' }} />
+          </div>
         </div>
       )}
     </Container>
