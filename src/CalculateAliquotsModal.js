@@ -16,6 +16,12 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
   });
 
   const [modal, setModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsgs, setErrorMsgs] = { 
+    'concentration': '',
+    'volume': '',
+    'amounts': '', 
+  }; 
 
   const toggle = () => setModal(!modal);
 
@@ -32,6 +38,22 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
     const amounts = input.match(/\d+(\.\d+)?/g);
     return amounts ? amounts.map(Number) : [];
   };
+
+  const validate = () => {
+    const newErrorMsgs = {
+      'concentration': '',
+      'volume': '',
+      'amounts': '',
+    }
+
+    if (!formData.concentration) {
+      newErrorMsgs.concentration = 'concentration is required';
+    }
+    if (!formData.volume) {
+      newErrorMsgs.volume = 'volume is required';
+    }
+    if ()
+  }
 
   const handleSubmit = e => {
     e.preventDefault();
