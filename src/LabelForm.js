@@ -8,6 +8,7 @@ import DownloadModal from './DownloadModal';
 import { Form, Button, FormGroup, Label as RSLabel, Input, FormText, Row, Col } from 'reactstrap';
 import ShortUniqueId from 'short-unique-id';
 import axios from 'axios';
+import { cleanSkipLabels, validateSkipLabels } from './inputValidation.js';
 
 
 function LabelForm() {
@@ -24,6 +25,7 @@ function LabelForm() {
 
 
   const [fileReady, setFileReady] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [labelInfo, setLabelInfo] = useState(
     {
       'labelType': labelTypeOptions[0], // use the first option as default
@@ -35,6 +37,7 @@ function LabelForm() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [hasBorder, setHasBorder] = useState(false);
   const [downloadLink, setDownloadLink] = useState('');
+  const [errorMsgs, setErrorMsgs] = useState({ skipLabels: '' });
 
   
   const [labels, setLabels] = useState([{
@@ -50,6 +53,17 @@ function LabelForm() {
   const handleBorderToggle = () => setHasBorder(!hasBorder);
   
 
+  const validate = cleanedSkipLabels => {
+    const newErrorMsgs = { skipLabels: '' };
+
+    if (cleanedSkipLabels) {
+      newErrorMsgs.skipLabels = validateSkipLabels(cleanedSkipLabels);
+    }
+
+    setErrorMsgs(newErrorMsgs);
+
+    return Object.values(newErrorMsgs).every(msg => msg === '');
+  };
 
   const handleLabelInfoChange = e => {
     const { name, value } = e.target;
@@ -80,6 +94,8 @@ function LabelForm() {
       }));
 
   };
+
+  
 
   const addLabel = () => {
     const newLabel = { 
@@ -133,35 +149,40 @@ function LabelForm() {
 
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-
-
-    const formattedLabels = labels
-      .filter(label => label.labeltext)
-      .map(({ labeltext, aliquots, labelcount, displayAliquots }) => ({
-        name: labeltext.trim(),
-        count: labelcount, 
-        use_aliquots: displayAliquots,
-        aliquots: aliquots
-          .filter(aliquot => aliquot.number)
-          .map(({ aliquottext, number }) => ({ text: aliquottext, number })),
-    }));
-
-
-    const { labelType, startLabel, skipLabels } = labelInfo;
-
-    const formData = {
-      'labels': formattedLabels,
-      'sheet_type': labelType,
-      'start_label': startLabel,
-      'skip_labels': skipLabels,
-      'border': hasBorder,
-    };
-
-    console.log('formData', formData)
 
 
     try {
+
+      e.preventDefault();
+
+      const { labelType, startLabel, skipLabels } = labelInfo;
+
+      // remove all whitespace except newlines inside the string and replace consecutive newlines with single newline
+      const cleanedSkipLabels = cleanSkipLabels(skipLabels);
+
+      if (!validate(cleanedSkipLabels)) return;
+
+      setIsSubmitting(true);
+
+      const formattedLabels = labels
+        .filter(label => label.labeltext)
+        .map(({ labeltext, aliquots, labelcount, displayAliquots }) => ({
+          name: labeltext.trim(),
+          count: labelcount, 
+          use_aliquots: displayAliquots,
+          aliquots: aliquots
+            .filter(aliquot => aliquot.number)
+            .map(({ aliquottext, number }) => ({ text: aliquottext, number })),
+      }));
+
+      const formData = {
+        'labels': formattedLabels,
+        'sheet_type': labelType,
+        'start_label': startLabel,
+        'skip_labels': cleanedSkipLabels, 
+        'border': hasBorder,
+      };
+
       setFileReady(false);
 
 
@@ -179,9 +200,13 @@ function LabelForm() {
       // Set the download link and open the modal
       setDownloadLink(url);
       setIsModalOpen(true);
+
+      setIsSubmitting(false);
     } catch (error) {
       console.error('Error downloading the file:', error);
     }
+
+    
     
   };
 
@@ -243,6 +268,7 @@ function LabelForm() {
               onChange={handleLabelInfoChange}
               className="form-textarea"
             />
+            {errorMsgs.skipLabels && <p className="error">{errorMsgs.skipLabels}</p>}
           </FormGroup>
           <FormGroup className="mb-3">
             <RSLabel for="labelFile" className="form-label">Label File</RSLabel>
@@ -265,7 +291,7 @@ function LabelForm() {
             setLabelAliquots={setLabelAliquots}
           />
           <div className="form-submit-container">
-            <Button color="primary" type="submit">Create Labels</Button>
+            <Button color="primary" type="submit" disabled={isSubmitting}>Create Labels</Button>
           </div>
         </Form>
         <DownloadModal isOpen={isModalOpen} toggle={handleModalToggle} downloadLink={downloadLink} />
