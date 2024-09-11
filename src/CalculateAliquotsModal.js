@@ -39,12 +39,12 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
     return amounts ? amounts.map(Number) : [];
   };
 
-  const validate = () => {
+  const validate = (parsedAmounts) => {
     const newErrorMsgs = {
       'concentration': '',
       'volume': '',
       'amounts': '',
-    }
+    };
 
     if (!formData.concentration) {
       newErrorMsgs.concentration = 'concentration is required';
@@ -52,21 +52,33 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
     if (!formData.volume) {
       newErrorMsgs.volume = 'volume is required';
     }
-    if ()
+    if (!parsedAmounts) {
+      newErrorMsgs.amounts = 'invalid input';
+    }
+
+    setErrorMsgs(newErrorMsgs);
+
+    return Object.values(newErrorMsgs).every(x => x === '');
   }
 
   const handleSubmit = e => {
     e.preventDefault();
 
+    setIsSubmitting(true);
+
     const { concentration, volume, amounts } = formData;
 
     const numAmounts = parseAmounts(amounts);
 
-    const aliquots = calculateAliquots(concentration, volume, numAmounts, concentrationUnit, volumeUnit, aliquotMassUnit);
+    if (validate(numAmounts)) {
+      const aliquots = calculateAliquots(concentration, volume, numAmounts, concentrationUnit, volumeUnit, aliquotMassUnit);
 
-    handleCalculateAliquotsClick(aliquots);
+      handleCalculateAliquotsClick(aliquots);
 
-    toggle();
+      toggle();
+    }
+    setIsSubmitting(false);
+    
   };
 
 
@@ -134,7 +146,7 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
           </Form>
         </ModalBody>
         <ModalFooter>
-          <Button color="primary" onClick={handleSubmit}>
+          <Button color="primary" onClick={handleSubmit} disabled={isSubmitting}>
             Calculate
           </Button>{' '}
           <Button color="secondary" onClick={toggle}>
