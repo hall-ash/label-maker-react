@@ -111,6 +111,7 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
                   {concentrationUnit}
                 </InputGroupText>
                 </InputGroup>
+                {errorMsgs.concentration && <p className="error">{errorMsgs.concentration}</p>}
               </Col>
             </Row>
             <Row>
@@ -130,6 +131,7 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
                   {volumeUnit}
                 </InputGroupText>
                 </InputGroup>
+                {errorMsgs.volume && <p className="error">{errorMsgs.volume}</p>}
                 </Col>
             </Row>
             <FormGroup className="mt-2">
@@ -141,6 +143,7 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
                 value={formData.amounts}
                 onChange={handleInputChange}
               />
+              {errorMsgs.amounts && <p className="error">{errorMsgs.amounts}</p>}
             </FormGroup>
         
           </Form>
