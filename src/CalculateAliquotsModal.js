@@ -1,6 +1,6 @@
 import './CalculateAliquotsModal.css';
 import React, { useState } from 'react';
-import { Modal, Button, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label as RSLabel, Input, FormText, InputGroupText, Row, Col, InputGroup } from 'reactstrap';
+import { Modal, Button, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label as RSLabel, Input, InputGroupText, Row, Col, InputGroup } from 'reactstrap';
 import calculateAliquots from './calculateAliquots.js';
 
 const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
@@ -17,11 +17,11 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
 
   const [modal, setModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMsgs, setErrorMsgs] = { 
+  const [errorMsgs, setErrorMsgs] = useState({ 
     'concentration': '',
     'volume': '',
     'amounts': '', 
-  }; 
+  }); 
 
   const toggle = () => setModal(!modal);
 
@@ -36,7 +36,7 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
 
   const parseAmounts = input => {
     const amounts = input.match(/\d+(\.\d+)?/g);
-    return amounts ? amounts.map(Number) : [];
+    return amounts ? amounts.map(Number) : false;
   };
 
   const validate = (parsedAmounts) => {
@@ -52,13 +52,13 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
     if (!formData.volume) {
       newErrorMsgs.volume = 'volume is required';
     }
-    if (!parsedAmounts) {
+    if (!parseAmounts) {
       newErrorMsgs.amounts = 'invalid input';
     }
 
     setErrorMsgs(newErrorMsgs);
 
-    return Object.values(newErrorMsgs).every(x => x === '');
+    return Object.values(newErrorMsgs).every(errorMsg => errorMsg === '');
   }
 
   const handleSubmit = e => {
@@ -80,7 +80,6 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
     setIsSubmitting(false);
     
   };
-
 
 
   return (
