@@ -8,6 +8,7 @@ import DownloadModal from './DownloadModal';
 import { Form, Button, FormGroup, Label as RSLabel, Input, FormText, Row, Col } from 'reactstrap';
 import ShortUniqueId from 'short-unique-id';
 import axios from 'axios';
+import SkipLabelsDropdown from "./SkipLabelsDropdown";
 import { cleanSkipLabels, validateSkipLabels } from './inputValidation.js';
 
 
@@ -37,7 +38,9 @@ function LabelForm() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [hasBorder, setHasBorder] = useState(false);
   const [downloadLink, setDownloadLink] = useState('');
-  const [errorMsgs, setErrorMsgs] = useState({ skipLabels: '' });
+  const [errorMsgs, setErrorMsgs] = useState({ 
+    skipLabels: '', 
+  });
 
   
   const [labels, setLabels] = useState([{
@@ -205,8 +208,6 @@ function LabelForm() {
     } catch (error) {
       console.error('Error downloading the file:', error);
     }
-
-    
     
   };
 
@@ -257,19 +258,12 @@ function LabelForm() {
             </FormGroup>
             </Col>
           </Row>
-          <FormGroup className="mb-3">
-            <RSLabel for="skipLabels" className="form-label">Skip Labels</RSLabel>
-            <Input
-              id="skipLabels"
-              name="skipLabels"
-              type="textarea"
-              placeholder={`1: A1-D4, E17${String.fromCharCode(10)}2: B2-D5`}
-              value={labelInfo.skipLabels}
-              onChange={handleLabelInfoChange}
-              className="form-textarea"
-            />
-            {errorMsgs.skipLabels && <p className="error">{errorMsgs.skipLabels}</p>}
-          </FormGroup>
+          <SkipLabelsDropdown 
+            skipLabelsValue={labelInfo.skipLabels}
+            skipLabelsErrorMsg={errorMsgs.skipLabels}
+            onChange={handleLabelInfoChange} 
+          />
+
           <FormGroup className="mb-3">
             <RSLabel for="labelFile" className="form-label">Label File</RSLabel>
             <Input
