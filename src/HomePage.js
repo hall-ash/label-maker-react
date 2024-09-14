@@ -5,10 +5,15 @@ import './HomePage.css';
 
 const HomePage = () => {
 
+  const showTitle = false;
+
+  const title = <h1 className='mt-3 mb-3 text-center'>Create Your Labels</h1>;
+  
   return (
     <Container className='col-md-7'>
-      <h1 className='mt-3 mb-3 text-center'>Label Maker</h1>
+      {showTitle && title}
       <LabelForm />
+      
     </Container>
   );
 }

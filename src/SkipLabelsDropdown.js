@@ -10,7 +10,7 @@ import {
 } from 'reactstrap';
 
 const SkipLabelsDropdown = ({ skipLabelsErrorMsg, skipLabelsValue, onChange }) => {
-   const [open, setOpen] = useState('1');
+  const [open, setOpen] = useState('0');
   const toggle = id => {
     if (open === id) {
       setOpen();

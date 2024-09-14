@@ -36,7 +36,7 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
 
   const parseAmounts = input => {
     const amounts = input.match(/\d+(\.\d+)?/g);
-    return amounts ? amounts.map(Number) : false;
+    return amounts ? amounts.map(Number) : [];
   };
 
   const validate = (parsedAmounts) => {
@@ -52,7 +52,10 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
     if (!formData.volume) {
       newErrorMsgs.volume = 'volume is required';
     }
-    if (!parseAmounts) {
+    if (!formData.amounts) {
+      newErrorMsgs.amounts = 'input required';
+    }
+    if (formData.amounts && parsedAmounts.length === 0) {
       newErrorMsgs.amounts = 'invalid input';
     }
 

@@ -56,11 +56,17 @@ function LabelForm() {
   const handleBorderToggle = () => setHasBorder(!hasBorder);
   
 
-  const validate = cleanedSkipLabels => {
-    const newErrorMsgs = { skipLabels: '' };
+  const validate = (cleanedSkipLabels, formattedLabels) => {
+    const newErrorMsgs = { 
+      skipLabels: '',
+      'labels': '', 
+    };
 
     if (cleanedSkipLabels) {
       newErrorMsgs.skipLabels = validateSkipLabels(cleanedSkipLabels);
+    }
+    if (formattedLabels.length < 1) {
+      newErrorMsgs.labels = 'Add labels to print.';
     }
 
     setErrorMsgs(newErrorMsgs);
@@ -163,12 +169,8 @@ function LabelForm() {
       // remove all whitespace except newlines inside the string and replace consecutive newlines with single newline
       const cleanedSkipLabels = cleanSkipLabels(skipLabels);
 
-      if (!validate(cleanedSkipLabels)) return;
-
-      setIsSubmitting(true);
-
       const formattedLabels = labels
-        .filter(label => label.labeltext)
+        .filter(label => label.labeltext && label.labelcount)
         .map(({ labeltext, aliquots, labelcount, displayAliquots }) => ({
           name: labeltext.trim(),
           count: labelcount, 
@@ -178,18 +180,31 @@ function LabelForm() {
             .map(({ aliquottext, number }) => ({ text: aliquottext, number })),
       }));
 
+      if (!validate(cleanedSkipLabels, formattedLabels)) return;
+
+      setIsSubmitting(true);
+
+      const savedSettings = localStorage.getItem('savedSettings');
+      const savedSettingsJSON = savedSettings ? JSON.parse(savedSettings) : {};
+
       const formData = {
         'labels': formattedLabels,
         'sheet_type': labelType,
         'start_label': startLabel,
         'skip_labels': cleanedSkipLabels, 
-        'border': hasBorder,
+        'border': savedSettingsJSON.hasBorder !== undefined ? savedSettingsJSON.hasBorder : false,
+        'padding': savedSettingsJSON.padding !== undefined ? savedSettingsJSON.padding : 1.75,
+        'font_size': savedSettingsJSON.fontSize !== undefined ? savedSettingsJSON.fontSize : 12,
+        'file_name': savedSettingsJSON.fileName !== undefined ? savedSettingsJSON.fileName : 'labels',
       };
+
+      console.log('formData', formData);
 
       setFileReady(false);
 
-
-      const response = await axios.post('http://192.168.134.118:5000/api/generate_pdf', formData, {
+      const workapi = 'http://192.168.134.118:5000/api/generate_pdf'
+      const curapi = 'http://192.168.4.112:5000/api/generate_pdf'
+      const response = await axios.post(workapi, formData, {
         responseType: 'blob' // Important for handling binary data
       });
 
@@ -212,9 +227,8 @@ function LabelForm() {
   };
 
   return (
-    <div className="label-form-container">
-      { fileReady ?
-        <>
+    fileReady ?
+    (<div className="label-form-container">
         <Form onSubmit={handleSubmit}>
           <FormGroup className="mb-3">
             <RSLabel for="labelType" className="form-label">Label Type</RSLabel>
@@ -242,21 +256,7 @@ function LabelForm() {
                 className="form-input form-input-narrow"
               />
             </Col>
-            <Col>
-             <FormGroup check className="d-flex align-items-center form-check-group">
-              <Input
-                type="checkbox"
-                id="border"
-                name="border"
-                checked={hasBorder}
-                onChange={handleBorderToggle}
-                className="form-check-input"
-              />
-              <RSLabel check className="form-check-label ms-2">
-                Add Border
-              </RSLabel>
-            </FormGroup>
-            </Col>
+           
           </Row>
           <SkipLabelsDropdown 
             skipLabelsValue={labelInfo.skipLabels}
@@ -284,16 +284,19 @@ function LabelForm() {
             onChange={handleLabelChange}
             setLabelAliquots={setLabelAliquots}
           />
+          {errorMsgs.labels && <p className="error text-center">{errorMsgs.labels}</p>}
           <div className="form-submit-container">
             <Button color="primary" type="submit" disabled={isSubmitting}>Create Labels</Button>
           </div>
         </Form>
         <DownloadModal isOpen={isModalOpen} toggle={handleModalToggle} downloadLink={downloadLink} />
-      </>
-      : 
-      <LoadingSpinner />
-      }
+     
+    </div>)
+    : (
+    <div className="loading-container">
+    <LoadingSpinner/>
     </div>
+    )
   );
 
 }

@@ -20,6 +20,8 @@
 // export default Navigation;
 
 import React, { useState } from 'react';
+import { FaCog } from 'react-icons/fa';
+import "./Navigation.css";
 import {
   Collapse,
   Navbar,
@@ -28,32 +30,34 @@ import {
   Nav,
   NavItem,
   NavLink,
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
   NavbarText,
+  Button
 } from 'reactstrap';
+import SettingsModal from "./SettingsModal.js";
 
 function Navigation(args) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const toggle = () => setIsOpen(!isOpen);
+  const toggleModal = () => setIsModalOpen(!isModalOpen);
 
   return (
     <div>
-      <Navbar {...args}>
+      <Navbar {...args} light expand="md">
         <NavbarBrand href="/">Label Maker</NavbarBrand>
         <NavbarToggler onClick={toggle} />
         <Collapse isOpen={isOpen} navbar>
-          <Nav className="me-auto" navbar>
+          <Nav className="ms-auto" navbar>
             <NavItem>
               <NavLink href="/">Home</NavLink>
             </NavItem>
             <NavItem>
-              <NavLink href="/calculate">
-                Calculate
-              </NavLink>
+              <NavLink href="/about">About</NavLink>
+            </NavItem>
+            <NavItem>
+              <Button color="link" onClick={toggleModal} className="settings-btn"><FaCog /></Button>
+              <SettingsModal isOpen={isModalOpen} toggle={toggleModal}/>
             </NavItem>
           </Nav>
         </Collapse>

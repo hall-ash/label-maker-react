@@ -2,7 +2,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './HomePage';
-import CalculatePage from './CalculatePage';
+import AboutPage from './AboutPage';
 import Navigation from './Navigation';
 
 const App = () => {
@@ -13,7 +13,7 @@ const App = () => {
         <Navigation />
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/calculate" element={<CalculatePage />} />
+          <Route path="/about" element={<AboutPage />} />
         </Routes>
       </div>
     </Router>
