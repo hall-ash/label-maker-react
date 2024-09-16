@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, InputGroup, InputGroupText, FormGroup, Label as RSLabel } from 'reactstrap';
-import useLocalStorage from "./useLocalStorage.js";
+
 
 const SettingsModal = ({ isOpen, toggle }) => {
 
@@ -16,24 +16,38 @@ const SettingsModal = ({ isOpen, toggle }) => {
 
   useEffect(() => {
     if (isOpen) {
+      const defaultSettings = {
+        'hasBorder': false, 
+        'fontSize': 12, 
+        'padding': 1.75,
+        'fileName': 'labels',
+      }
       const savedSettings = JSON.parse(localStorage.getItem('settings'));
       if (savedSettings) {
-        setSettings({ ...settings, ...savedSettings });
-      } 
-    }
+        setSettings({ ...defaultSettings, ...savedSettings });
+      } else {
+        setSettings(defaultSettings);
+      }
+    } 
   }, [isOpen]);
 
 
 
   const handleSaveClick = () => {
     toggle();
-    const changedSettings = Object.entries(settings).reduce((changes, [key, value]) => {
-      if (key in defaultSettings && value !== defaultSettings.value) {
-        changes[key] = value;
-      }
-    }, {});
+    const changedSettings = Object.fromEntries(
+      Object.entries(settings).filter(
+        ([key, value]) => key in defaultSettings && value !== defaultSettings[key]
+      )
+    );
+    
 
-    localStorage.setItem('settings', JSON.stringify(changedSettings));
+    if (Object.keys(changedSettings).length) {
+      localStorage.setItem('settings', JSON.stringify(changedSettings));
+    } else {
+      localStorage.removeItem('settings');
+    }
+    
     
   };
  
@@ -63,7 +77,7 @@ const SettingsModal = ({ isOpen, toggle }) => {
               id="padding"
               name="padding"
               type="number"
-              value={settings.padding !== null ? settings.padding : defaultSettings.padding}
+              value={settings.padding}
               onChange={handleChange}
               min="0"
               bsSize="sm"
@@ -76,7 +90,7 @@ const SettingsModal = ({ isOpen, toggle }) => {
               id="fontSize"
               name="fontSize"
               type="number"
-              value={settings.fontSize !== null ? settings.fontSize : defaultSettings.fontSize}
+              value={settings.fontSize}
               onChange={handleChange}
               min="1"
               bsSize="sm"
@@ -89,7 +103,7 @@ const SettingsModal = ({ isOpen, toggle }) => {
                 type="checkbox"
                 id="border"
                 name="border"
-                checked={settings.hasBorder !== null ? settings.hasBorder : defaultSettings.hasBorder}
+                checked={settings.hasBorder}
                 onChange={handleBorderToggle}
                 className="form-check-input"
               />
@@ -107,7 +121,7 @@ const SettingsModal = ({ isOpen, toggle }) => {
               id="fileName"
               name="fileName"
               type="text"
-              value={settings.fileName !==null ? settings.fileName : defaultSettings.fileName}
+              value={settings.fileName}
               onChange={handleChange}
             />
             <InputGroupText>

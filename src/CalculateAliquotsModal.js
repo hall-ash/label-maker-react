@@ -40,28 +40,41 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
   };
 
   const validate = (parsedAmounts) => {
-    const newErrorMsgs = {
-      'concentration': '',
-      'volume': '',
-      'amounts': '',
-    };
 
-    if (!formData.concentration) {
-      newErrorMsgs.concentration = 'concentration is required';
-    }
-    if (!formData.volume) {
-      newErrorMsgs.volume = 'volume is required';
-    }
-    if (!formData.amounts) {
-      newErrorMsgs.amounts = 'input required';
-    }
-    if (formData.amounts && parsedAmounts.length === 0) {
-      newErrorMsgs.amounts = 'invalid input';
+    const positiveNumericSchema = z.string({
+      required_error: "Enter a value",  // Error message if the input is empty
+    }).transform(value => {
+      // Convert the string to a number
+      const number = parseFloat(value);
+      // Check if the converted number is actually a number and is finite
+      if (isNaN(number) || !isFinite(number)) {
+        throw new Error("The input must be a valid number"); // Validation error for invalid numbers
+      }
+      return number;
+    }).refine(value => value > 0, {
+      message: "The value must be positive",  // Validation error for non-positive numbers
+    });
+
+    const calculateAliquotsModalSchema = z.object({
+      'concentration': positiveNumericSchema,
+      'volume': positiveNumericSchema,
+      'amounts': z.array(z.number()).nonempty({'Enter at least one amount in mg'}),
+    });
+    
+    const parsedData = calculateAliquotsModalSchema.safeParse({ ...formData, 'amounts': parsedAmounts })
+
+    if (parsedData.error) {
+      const issueMsgs = parsedData.error.issues.reduce((msgs, issue) => {
+        const { path: inputs, message } = issue;
+        msgs[inputs[0]] = message;
+        return msgs;
+      }, {});
+      setErrorMsgs(issueMsgs);
+    } else {
+      setErrorMsgs({ concentration: '', volume: '', amounts: '' });
     }
 
-    setErrorMsgs(newErrorMsgs);
-
-    return Object.values(newErrorMsgs).every(errorMsg => errorMsg === '');
+    return parsedData.success;
   }
 
   const handleSubmit = e => {

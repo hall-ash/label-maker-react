@@ -10,7 +10,7 @@ import ShortUniqueId from 'short-unique-id';
 import axios from 'axios';
 import SkipLabelsDropdown from "./SkipLabelsDropdown";
 import { cleanSkipLabels, validateSkipLabels } from './inputValidation.js';
-
+import filenamify from 'filenamify/browser';
 
 function LabelForm() {
 
@@ -184,18 +184,22 @@ function LabelForm() {
 
       setIsSubmitting(true);
 
-      const savedSettings = localStorage.getItem('savedSettings');
-      const savedSettingsJSON = savedSettings ? JSON.parse(savedSettings) : {};
+      const {
+        hasBorder = false,
+        padding = 1.75,
+        fontSize = 12,
+        fileName = 'labels'
+      } = JSON.parse(localStorage.getItem('settings')) || {};
 
       const formData = {
         'labels': formattedLabels,
         'sheet_type': labelType,
         'start_label': startLabel,
         'skip_labels': cleanedSkipLabels, 
-        'border': savedSettingsJSON.hasBorder !== undefined ? savedSettingsJSON.hasBorder : false,
-        'padding': savedSettingsJSON.padding !== undefined ? savedSettingsJSON.padding : 1.75,
-        'font_size': savedSettingsJSON.fontSize !== undefined ? savedSettingsJSON.fontSize : 12,
-        'file_name': savedSettingsJSON.fileName !== undefined ? savedSettingsJSON.fileName : 'labels',
+        'border': hasBorder,
+        'padding': padding,
+        'font_size': fontSize,
+        'file_name': filenamify(fileName),
       };
 
       console.log('formData', formData);
@@ -204,7 +208,7 @@ function LabelForm() {
 
       const workapi = 'http://192.168.134.118:5000/api/generate_pdf'
       const curapi = 'http://192.168.4.112:5000/api/generate_pdf'
-      const response = await axios.post(workapi, formData, {
+      const response = await axios.post(curapi, formData, {
         responseType: 'blob' // Important for handling binary data
       });
 
@@ -264,17 +268,7 @@ function LabelForm() {
             onChange={handleLabelInfoChange} 
           />
 
-          <FormGroup className="mb-3">
-            <RSLabel for="labelFile" className="form-label">Label File</RSLabel>
-            <Input
-              id="labelFile"
-              name="labelFile"
-              type="file"
-              onChange={handleLabelInfoChange}
-              className="form-file"
-            />
-            <FormText className="form-text-info">Upload an excel or csv file to create labels.</FormText>
-          </FormGroup>
+    
           <LabelList 
             labels={labels} 
             addLabel={addLabel}
