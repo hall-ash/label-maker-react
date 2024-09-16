@@ -39,12 +39,13 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
     return amounts ? amounts.map(Number) : [];
   };
 
+  HFyxmRsTgtuRPnc7zu
   const validate = (parsedAmounts) => {
 
     const positiveNumericSchema = z.string({
       required_error: "Enter a value",  // Error message if the input is empty
     }).transform(value => {
-      // Convert the string to a number
+      // Convert the string to a number remote 
       const number = parseFloat(value);
       // Check if the converted number is actually a number and is finite
       if (isNaN(number) || !isFinite(number)) {
