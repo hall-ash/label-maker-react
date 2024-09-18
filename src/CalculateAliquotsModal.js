@@ -2,7 +2,7 @@ import './CalculateAliquotsModal.css';
 import React, { useState } from 'react';
 import { Modal, Button, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label as RSLabel, Input, InputGroupText, Row, Col, InputGroup } from 'reactstrap';
 import calculateAliquots from './calculateAliquots.js';
-import { z } from 'zod';
+import { calculateAliquotsModalSchema } from './validationSchemas.js';
 
 const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
 
@@ -17,12 +17,7 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
   });
 
   const [modal, setModal] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMsgs, setErrorMsgs] = useState({ 
-    'concentration': '',
-    'volume': '',
-    'amounts': '', 
-  }); 
+  const [errors, setErrors] = useState({}); 
 
   const toggle = () => setModal(!modal);
 
@@ -33,47 +28,18 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
       ...formData,
       [name]: value,
     });
-  };
 
-  const parseAmounts = input => {
-    const amounts = input.match(/\d+(\.\d+)?/g);
-    return amounts ? amounts.map(Number) : [];
-  };
-
-
-  
-
-  const parseData = () => {
-
-    const amountsSchema = z
-    .string() // Input is expected to be a string
-    .transform(amountsStr => {
-      const amounts = amountsStr.match(/\d+(\.\d+)?/g); // Extract numbers from the string
-      return amounts ? amounts.map(Number) : []; // Convert to an array of numbers
+    setFormData(prevFormData => {
+      const updatedFormData = { ...prevFormData, [name]: value, };
+      parseData(updatedFormData);
+      return updatedFormData;
     })
-    .array(z.number()) // The transformed value should be an array of numbers
-    .nonempty('Enter at least one amount in mg'); // Ensure at least one number is present
+  };
 
 
-    const positiveNumericSchema = z.string({
-      required_error: "Enter a value",  // Error message if the input is empty
-    }).transform(value => {
-      // Convert the string to a number remote 
-      const number = parseFloat(value);
-      // Check if the converted number is actually a number and is finite
-      if (isNaN(number) || !isFinite(number)) {
-        throw new Error("The input must be a valid number"); // Validation error for invalid numbers
-      }
-      return number;
-    }).positive('The number must be positive');
+  const parseData = (updatedFormData) => {
 
-    const calculateAliquotsModalSchema = z.object({
-      'concentration': positiveNumericSchema,
-      'volume': positiveNumericSchema,
-      'amounts': amountsSchema,
-    });
-    
-    const parsedData = calculateAliquotsModalSchema.safeParse(formData)
+    const parsedData = calculateAliquotsModalSchema.safeParse(updatedFormData);
 
     if (parsedData.error) {
       const issueMsgs = parsedData.error.issues.reduce((msgs, issue) => {
@@ -81,9 +47,13 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
         msgs[inputs[0]] = message;
         return msgs;
       }, {});
-      setErrorMsgs(issueMsgs);
+      setErrors(issueMsgs);
     } else {
-      setErrorMsgs({ concentration: '', volume: '', amounts: '' });
+      const blankErrors = Object.keys(errors).reduce((blank, key) => {
+        blank[key] = '';
+        return blank;
+      }, {});
+      setErrors(blankErrors);
     }
 
     return parsedData;
@@ -91,12 +61,6 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
 
   const handleSubmit = e => {
     e.preventDefault();
-
-    setIsSubmitting(true);
-
-    const { concentration, volume, amounts } = formData;
-
-    // const numAmounts = parseAmounts(amounts);
 
     const parsedData = parseData(formData);
 
@@ -107,15 +71,6 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
       handleCalculateAliquotsClick(aliquots);
       toggle();
     }
-    
-    // if (validate(numAmounts)) {
-    //   const aliquots = calculateAliquots(concentration, volume, numAmounts, concentrationUnit, volumeUnit, aliquotMassUnit);
-
-    //   handleCalculateAliquotsClick(aliquots);
-
-      
-    // }
-    setIsSubmitting(false);
     
   };
 
@@ -148,7 +103,7 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
                   {concentrationUnit}
                 </InputGroupText>
                 </InputGroup>
-                {errorMsgs.concentration && <p className="error">{errorMsgs.concentration}</p>}
+                {errors.concentration && <small className="text-danger">{errors.concentration}</small>}
               </Col>
             </Row>
             <Row>
@@ -168,7 +123,7 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
                   {volumeUnit}
                 </InputGroupText>
                 </InputGroup>
-                {errorMsgs.volume && <p className="error">{errorMsgs.volume}</p>}
+                {errors.volume && <small className="text-danger">{errors.volume}</small>}
                 </Col>
             </Row>
             <FormGroup className="mt-2">
@@ -180,13 +135,13 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
                 value={formData.amounts}
                 onChange={handleInputChange}
               />
-              {errorMsgs.amounts && <p className="error">{errorMsgs.amounts}</p>}
+              {errors.amounts && <small className="text-danger">{errors.amounts}</small>}
             </FormGroup>
         
           </Form>
         </ModalBody>
         <ModalFooter>
-          <Button color="primary" onClick={handleSubmit} disabled={isSubmitting}>
+          <Button color="primary" onClick={handleSubmit}>
             Calculate
           </Button>{' '}
           <Button color="secondary" onClick={toggle}>
