@@ -52,7 +52,7 @@ const calculateAliquots = (concentration, volume, amounts, concentrationUnit="mg
       });
     }
 
-    return aliquots;
+    return aliquots.filter(aliquot => aliquot.number > 0);
   };
 
 
