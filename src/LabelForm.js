@@ -207,8 +207,6 @@ function LabelForm() {
 
       setFileReady(false);
 
-      const controller = new AbortController();
-
       const workapi = 'http://192.168.134.118:5000/api/generate_pdf'
       const curapi = 'http://192.168.4.112:5000/api/generate_pdf'
       const response = await axios.post(curapi, formData, {
