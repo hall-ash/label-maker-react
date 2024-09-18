@@ -2,6 +2,7 @@ import './CalculateAliquotsModal.css';
 import React, { useState } from 'react';
 import { Modal, Button, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label as RSLabel, Input, InputGroupText, Row, Col, InputGroup } from 'reactstrap';
 import calculateAliquots from './calculateAliquots.js';
+import { z } from 'zod';
 
 const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
 
@@ -39,8 +40,20 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
     return amounts ? amounts.map(Number) : [];
   };
 
-  HFyxmRsTgtuRPnc7zu
-  const validate = (parsedAmounts) => {
+
+  
+
+  const parseData = () => {
+
+    const amountsSchema = z
+    .string() // Input is expected to be a string
+    .transform(amountsStr => {
+      const amounts = amountsStr.match(/\d+(\.\d+)?/g); // Extract numbers from the string
+      return amounts ? amounts.map(Number) : []; // Convert to an array of numbers
+    })
+    .array(z.number()) // The transformed value should be an array of numbers
+    .nonempty('Enter at least one amount in mg'); // Ensure at least one number is present
+
 
     const positiveNumericSchema = z.string({
       required_error: "Enter a value",  // Error message if the input is empty
@@ -52,17 +65,15 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
         throw new Error("The input must be a valid number"); // Validation error for invalid numbers
       }
       return number;
-    }).refine(value => value > 0, {
-      message: "The value must be positive",  // Validation error for non-positive numbers
-    });
+    }).positive('The number must be positive');
 
     const calculateAliquotsModalSchema = z.object({
       'concentration': positiveNumericSchema,
       'volume': positiveNumericSchema,
-      'amounts': z.array(z.number()).nonempty({'Enter at least one amount in mg'}),
+      'amounts': amountsSchema,
     });
     
-    const parsedData = calculateAliquotsModalSchema.safeParse({ ...formData, 'amounts': parsedAmounts })
+    const parsedData = calculateAliquotsModalSchema.safeParse(formData)
 
     if (parsedData.error) {
       const issueMsgs = parsedData.error.issues.reduce((msgs, issue) => {
@@ -75,7 +86,7 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
       setErrorMsgs({ concentration: '', volume: '', amounts: '' });
     }
 
-    return parsedData.success;
+    return parsedData;
   }
 
   const handleSubmit = e => {
@@ -85,15 +96,25 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
 
     const { concentration, volume, amounts } = formData;
 
-    const numAmounts = parseAmounts(amounts);
+    // const numAmounts = parseAmounts(amounts);
 
-    if (validate(numAmounts)) {
-      const aliquots = calculateAliquots(concentration, volume, numAmounts, concentrationUnit, volumeUnit, aliquotMassUnit);
+    const parsedData = parseData(formData);
+
+    if (parsedData.success) {
+      const transformedAmounts = parsedData.data.amounts;
+      const aliquots = calculateAliquots(formData.concentration, formData.volume, transformedAmounts, concentrationUnit, volumeUnit, aliquotMassUnit);
 
       handleCalculateAliquotsClick(aliquots);
-
       toggle();
     }
+    
+    // if (validate(numAmounts)) {
+    //   const aliquots = calculateAliquots(concentration, volume, numAmounts, concentrationUnit, volumeUnit, aliquotMassUnit);
+
+    //   handleCalculateAliquotsClick(aliquots);
+
+      
+    // }
     setIsSubmitting(false);
     
   };

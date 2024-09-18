@@ -11,6 +11,7 @@ import axios from 'axios';
 import SkipLabelsDropdown from "./SkipLabelsDropdown";
 import { cleanSkipLabels, validateSkipLabels } from './inputValidation.js';
 import filenamify from 'filenamify/browser';
+import { z } from 'zod';
 
 function LabelForm() {
 
@@ -206,10 +207,13 @@ function LabelForm() {
 
       setFileReady(false);
 
+      const controller = new AbortController();
+
       const workapi = 'http://192.168.134.118:5000/api/generate_pdf'
       const curapi = 'http://192.168.4.112:5000/api/generate_pdf'
       const response = await axios.post(curapi, formData, {
-        responseType: 'blob' // Important for handling binary data
+        responseType: 'blob', // Important for handling binary data
+        timeout: 10000, // timeout after 10 seconds
       });
 
       // Create a blob from the response
@@ -225,6 +229,10 @@ function LabelForm() {
 
       setIsSubmitting(false);
     } catch (error) {
+      if (error.code === 'ECONNABORTED') {
+        console.error('Request timed out');
+        // display error to user
+      }
       console.error('Error downloading the file:', error);
     }
     
