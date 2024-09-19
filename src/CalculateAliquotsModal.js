@@ -2,7 +2,7 @@ import './CalculateAliquotsModal.css';
 import React, { useState } from 'react';
 import { Modal, Button, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label as RSLabel, Input, InputGroupText, Row, Col, InputGroup } from 'reactstrap';
 import calculateAliquots from './calculateAliquots.js';
-import { calculateAliquotsModalSchema } from './validationSchemas.js';
+import { calculateAliquotsModalSchema, parseData } from './validationSchemas.js';
 
 const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
 
@@ -31,38 +31,17 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
 
     setFormData(prevFormData => {
       const updatedFormData = { ...prevFormData, [name]: value, };
-      parseData(updatedFormData);
+      parseData(updatedFormData, calculateAliquotsModalSchema, errors, setErrors);
       return updatedFormData;
     })
   };
 
 
-  const parseData = (updatedFormData) => {
-
-    const parsedData = calculateAliquotsModalSchema.safeParse(updatedFormData);
-
-    if (parsedData.error) {
-      const issueMsgs = parsedData.error.issues.reduce((msgs, issue) => {
-        const { path: inputs, message } = issue;
-        msgs[inputs[0]] = message;
-        return msgs;
-      }, {});
-      setErrors(issueMsgs);
-    } else {
-      const blankErrors = Object.keys(errors).reduce((blank, key) => {
-        blank[key] = '';
-        return blank;
-      }, {});
-      setErrors(blankErrors);
-    }
-
-    return parsedData;
-  }
-
   const handleSubmit = e => {
     e.preventDefault();
 
-    const parsedData = parseData(formData);
+    const returnParsedData = true;
+    const parsedData = parseData(formData, calculateAliquotsModalSchema, errors, setErrors, returnParsedData);
 
     if (parsedData.success) {
       const transformedAmounts = parsedData.data.amounts;

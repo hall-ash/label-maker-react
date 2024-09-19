@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, InputGroup, InputGroupText, FormGroup, Label as RSLabel } from 'reactstrap';
-import { settingsSchema } from './validationSchemas.js';
+import { settingsSchema, parseData } from './validationSchemas.js';
 
 const SettingsModal = ({ isOpen, toggle }) => {
 
@@ -13,6 +13,7 @@ const SettingsModal = ({ isOpen, toggle }) => {
 
   const [settings, setSettings] = useState(defaultSettings);
   const [errors, setErrors] = useState({}); 
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -32,29 +33,6 @@ const SettingsModal = ({ isOpen, toggle }) => {
     } 
   }, [isOpen]);
 
- 
-
-
-  const parseSettings = (updatedSettings) => {
-    const parsedSettings = settingsSchema.safeParse(updatedSettings);
-
-    if (parsedSettings.error) {
-       const issueMsgs = parsedSettings.error.issues.reduce((msgs, issue) => {
-        const { path: inputs, message } = issue;
-        msgs[inputs[0]] = message;
-        return msgs;
-      }, {});
-      setErrors(issueMsgs);
-    } else {
-      const blankErrors = Object.keys(errors).reduce((blank, key) => {
-        blank[key] = '';
-        return blank;
-      }, {});
-      setErrors(blankErrors);
-    }
-
-  };
-
   const validateSettings = () => {
     return Object.values(errors).every(msg => msg === '');
   };
@@ -63,8 +41,9 @@ const SettingsModal = ({ isOpen, toggle }) => {
   const handleSaveClick = () => {
 
     try {
-
+      
       if (validateSettings()) {
+        setIsSubmitting(true);
         toggle();
 
         const changedSettings = Object.fromEntries(
@@ -78,8 +57,8 @@ const SettingsModal = ({ isOpen, toggle }) => {
         } else {
           localStorage.removeItem('settings');
         }
-      }
-
+      } 
+      setIsSubmitting(false);
     } catch (e) {
       console.error(e);
     }
@@ -94,10 +73,6 @@ const SettingsModal = ({ isOpen, toggle }) => {
     }));
   };
 
-   //useEffect(() => parseSettings(), [settings]);
-
-
-
   const handleChange = e => {
     const { name, value } = e.target;
 
@@ -107,7 +82,7 @@ const SettingsModal = ({ isOpen, toggle }) => {
           [name]: value,
       };
 
-      parseSettings(updatedSettings);
+      parseData(updatedSettings, settingsSchema, errors, setErrors);
 
       return updatedSettings;
     });
@@ -182,7 +157,7 @@ const SettingsModal = ({ isOpen, toggle }) => {
         <Button color="secondary" onClick={toggle}>
           Cancel
         </Button>{' '}
-        <Button color="primary" onClick={handleSaveClick}>Save</Button>
+        <Button color="primary" onClick={handleSaveClick} disabled={isSubmitting}>Save</Button>
       </ModalFooter>
     </Modal>
   );

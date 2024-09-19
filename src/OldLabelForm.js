@@ -7,6 +7,7 @@ import { Form, Button, FormGroup, Label as RSLabel, Input, Row, Col } from 'reac
 import ShortUniqueId from 'short-unique-id';
 import axios from 'axios';
 import SkipLabelsDropdown from "./SkipLabelsDropdown";
+import { cleanSkipLabels, validateSkipLabels } from './inputValidation.js';
 import { labelFormSchema, parseData } from './validationSchemas.js';
 
 
@@ -23,83 +24,92 @@ const LabelForm = () => {
 
   const [fileReady, setFileReady] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const [formData, setFormData] = useState(
-  {
-    labelType: labelTypeOptions[0],
-    startLabel: '',
-    skipLabels: '',
-    labels: [{
-      id: uid.rnd(),
-      labeltext: '',
-      labelcount: '',
-      displayAliquots: false,
-      aliquots: Array.from({ length: 1 }, () => ({ id: uid.rnd(), aliquottext: '', number: '' })),
-    }],
+  const [labelInfo, setLabelInfo] = useState(
+    {
+      'labelType': labelTypeOptions[0], // use the first option as default
+      'startLabel': '',
+      'skipLabels': '',
   });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [downloadLink, setDownloadLink] = useState('');
   const [errors, setErrors] = useState({});
+  
+  const [labels, setLabels] = useState([{
+    id: uid.rnd(),
+    labeltext: '',
+    labelcount: 0,
+    displayAliquots: false,
+    aliquots: Array.from({ length: 1 }, () => ({ id: uid.rnd(), aliquottext: '', number: '' })),
+  }]);
+
 
   const handleModalToggle = () => setIsModalOpen(!isModalOpen);
 
-  const handleChange = (e, labelId, aliquotId) => {
+  const validate = (cleanedSkipLabels, formattedLabels) => {
+    const newErrorMsgs = { 
+      skipLabels: '',
+      'labels': '', 
+    };
+
+    if (cleanedSkipLabels) {
+      newErrorMsgs.skipLabels = validateSkipLabels(cleanedSkipLabels);
+    }
+    if (formattedLabels.length < 1) {
+      newErrorMsgs.labels = 'Add labels to print.';
+    }
+
+    setErrors(newErrorMsgs);
+
+    return Object.values(newErrorMsgs).every(msg => msg === '');
+  };
+
+  const handleLabelInfoChange = e => {
     const { name, value } = e.target;
 
-      // Handle changes within labels and their aliquots
-      setFormData(prev => {
-        const updated = (labelId || aliquotId) ? 
-        ({
-          ...prev,
-          labels: prev.labels.map(label => {
-            if (label.id === labelId) {
-              if (aliquotId) {
-                return {
-                  ...label,
-                  aliquots: label.aliquots.map(aliquot =>
-                    aliquot.id === aliquotId ? { ...aliquot, [name]: value } : aliquot
-                  ),
-                };
-              }
-              return { ...label, [name]: value };
-            }
-            return label;
-          }),
-        })
-        : ({
-          ...prev,
-          [name]: value,
-        })
-
-        parseData(updated, labelFormSchema, errors, setErrors);
-        return updated;
-    });
-    
+    setLabelInfo({
+      ...labelInfo,
+      [name]: value,
+    })
   };
+
+  const handleLabelChange = (e, labelId, aliquotId) => {
+      const { name, value } = e.target;
+
+      setLabels(labels.map(label => {
+        if (label.id === labelId) {
+          if (aliquotId) {
+            return {
+              ...label,
+              aliquots: label.aliquots.map(aliquot => 
+                  aliquot.id === aliquotId ? { ...aliquot, [name]: value } : aliquot
+              )
+            };
+          } else {
+            return { ...label, [name]: value };
+          }
+        }
+        return label;
+      }));
+
+  };
+
+  
 
   const addLabel = () => {
     const newLabel = { 
       id: uid.rnd(),
       labeltext: '',
       displayAliquots: false,
-      labelcount: '',
+      labelcount: 0,
       aliquots: Array.from({ length: 1 }, () => ({ id: uid.rnd(), aliquottext: '', number: '' })),
     };
 
-    setFormData(prev => ({
-      ...prev,
-      labels: [...prev.labels, newLabel]
-    }));
-
+    setLabels([...labels, newLabel]);
   };
 
   const removeLabel = labelId => {
-
-    setFormData(prev => ({
-      ...prev,
-      labels: prev.labels.filter(label => label.id !== labelId)
-    }));
+    setLabels(labels.filter(label => label.id !== labelId));
   };
 
   const addAliquot = labelId => {
@@ -108,27 +118,19 @@ const LabelForm = () => {
       aliquottext: '',
       number: '',
     };
-
-    setFormData(prev => ({
-      ...prev,
-      labels: prev.labels.map(label => 
-        label.id === labelId
+    setLabels(labels.map(label => 
+      label.id === labelId
         ? { ...label, aliquots: [...label.aliquots, newAliquot] }
         : label
-    )}));
-
+      ));
   };
 
   const removeAliquot = (labelId, aliquotId) => {
-
-    setFormData(prev => ({
-      ...prev,
-      labels: prev.labels.map(label =>
-        label.id === labelId
-        ? { ...label, aliquots: label.aliquots.filter(aliquot => aliquot.id !== aliquotId) }
-        : label
-      )
-    }));
+    setLabels(labels.map(label => 
+        label.id === labelId 
+          ? { ...label, aliquots: label.aliquots.filter(aliquot => aliquot.id !== aliquotId) }
+          : label
+      ));
   };
 
 
@@ -136,15 +138,12 @@ const LabelForm = () => {
   const setLabelAliquots = (labelId, aliquots) => {
 
     const calculatedAliquots = aliquots.map(aliquot => ({...aliquot, id: uid.rnd() }));
-
-    setFormData(prev => ({
-      ...prev,
-      labels: prev.labels.map(label =>
-        label.id === labelId
+    setLabels(labels.map(label => 
+      label.id === labelId
         ? { ...label, aliquots: calculatedAliquots }
         : label
-      )
-    }));
+    ));
+
   };
 
 
@@ -155,6 +154,26 @@ const LabelForm = () => {
 
       e.preventDefault();
 
+      const { labelType, startLabel, skipLabels } = labelInfo;
+
+      // remove all whitespace except newlines inside the string and replace consecutive newlines with single newline
+      const cleanedSkipLabels = cleanSkipLabels(skipLabels);
+
+      const formattedLabels = labels
+        .filter(label => label.labeltext && label.labelcount)
+        .map(({ labeltext, aliquots, labelcount, displayAliquots }) => ({
+          name: labeltext.trim(),
+          count: labelcount, 
+          use_aliquots: displayAliquots,
+          aliquots: aliquots
+            .filter(aliquot => aliquot.number)
+            .map(({ aliquottext, number }) => ({ text: aliquottext, number })),
+      }));
+
+      // if (!validate(cleanedSkipLabels, formattedLabels)) return;
+
+      
+
       const {
         hasBorder = false,
         padding = 1.75,
@@ -164,7 +183,10 @@ const LabelForm = () => {
 
       const returnParsedData = true;
       const parsedFormData = parseData({
-        ...formData,
+        labels,
+        labelType,
+        startLabel,
+        skipLabels,
         hasBorder,
         padding,
         fontSize,
@@ -175,26 +197,26 @@ const LabelForm = () => {
 
       setIsSubmitting(true);
 
-      const { labels, skipLabels, fileName: parsedFileName } = parsedFormData.data;
+      const { skipLabels: transformedSkipLabels, labels: transformedLabels, fileName: transformedFileName } = parsedFormData.data.skipLabels;
 
-      const validatedFormData = {
-        labels, //formattedLabels
-        'sheet_type': formData.labelType,
-        'start_label': formData.startLabel,
-        'skip_labels': skipLabels, // cleanedSkipLabels, 
+      const formData = {
+        'labels': transformedLabels, //formattedLabels
+        'sheet_type': labelType,
+        'start_label': startLabel,
+        'skip_labels': transformedSkipLabels, // cleanedSkipLabels, 
         'border': hasBorder,
-        padding,
+        'padding': padding,
         'font_size': fontSize,
-        'file_name': parsedFileName,
+        'file_name': transformedFileName,
       };
 
-      console.log('formData', validatedFormData);
+      console.log('formData', formData);
 
       setFileReady(false);
 
-      const atWork = false;
-      const api = atWork ? 'http://192.168.134.118:5000/api/generate_pdf' : 'http://192.168.4.112:5000/api/generate_pdf';
-      const response = await axios.post(api, formData, {
+      const workapi = 'http://192.168.134.118:5000/api/generate_pdf'
+      const curapi = 'http://192.168.4.112:5000/api/generate_pdf'
+      const response = await axios.post(curapi, formData, {
         responseType: 'blob', // Important for handling binary data
         timeout: 10000, // timeout after 10 seconds
       });
@@ -231,8 +253,8 @@ const LabelForm = () => {
               id="labelType"
               name="labelType"
               type="select"
-              value={formData.labelType}
-              onChange={handleChange}
+              value={labelInfo.labelType}
+              onChange={handleLabelInfoChange}
             >
               {labelTypeOptions.map((labelType, i) => <option key={i}>{labelType}</option>)}
             </Input>
@@ -246,31 +268,30 @@ const LabelForm = () => {
                 id="startLabel"
                 name="startLabel"
                 type="text"
-                value={formData.startLabel}
-                onChange={handleChange}
+                value={labelInfo.startLabel}
+                onChange={handleLabelInfoChange}
                 className="form-input form-input-narrow"
               />
-              {errors.startLabel && <small className="text-danger">{errors.startLabel}</small>}
             </Col>
            
           </Row>
           <SkipLabelsDropdown 
-            skipLabelsValue={formData.skipLabels}
+            skipLabelsValue={labelInfo.skipLabels}
             skipLabelsErrorMsg={errors.skipLabels}
-            onChange={handleChange} 
+            onChange={handleLabelInfoChange} 
           />
-          {errors.skipLabels && <small className="text-danger">{errors.skipLabels}</small>}
+
     
           <LabelList 
-            labels={formData.labels} 
+            labels={labels} 
             addLabel={addLabel}
             removeLabel={removeLabel}
             addAliquot={addAliquot}
             removeAliquot={removeAliquot}
-            onChange={handleChange}
+            onChange={handleLabelChange}
             setLabelAliquots={setLabelAliquots}
           />
-          {errors.labels && <small className="text-danger">{errors.labels}</small>}
+          {errors.labels && <p className="error text-center">{errors.labels}</p>}
           <div className="form-submit-container">
             <Button color="primary" type="submit" disabled={isSubmitting}>Create Labels</Button>
           </div>
