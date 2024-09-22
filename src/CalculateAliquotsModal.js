@@ -2,7 +2,7 @@ import './CalculateAliquotsModal.css';
 import React, { useState } from 'react';
 import { Modal, Button, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label as RSLabel, Input, InputGroupText, Row, Col, InputGroup } from 'reactstrap';
 import calculateAliquots from './calculateAliquots.js';
-import { calculateAliquotsModalSchema, parseData } from './validationSchemas.js';
+import { calculateAliquotsModalSchema, getErrors } from './validationSchemas.js';
 
 const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
 
@@ -14,6 +14,10 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
     'concentration': '',
     'volume': '',
     'amounts': '',
+  });
+
+  const [transformedData, setTransformedData] = useState({
+    'transformedAmounts': '',
   });
 
   const [modal, setModal] = useState(false);
@@ -31,7 +35,10 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
 
     setFormData(prevFormData => {
       const updatedFormData = { ...prevFormData, [name]: value, };
-      parseData(updatedFormData, calculateAliquotsModalSchema, errors, setErrors);
+
+      const parsedData = calculateAliquotsModalSchema.safeParse(updatedFormData);
+      setTransformedData(prev => ({ ...prev, transformedAmounts: parsedData.data.amounts }));
+      setErrors(getErrors(parsedData.error));
       return updatedFormData;
     })
   };
@@ -40,12 +47,11 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
   const handleSubmit = e => {
     e.preventDefault();
 
-    const returnParsedData = true;
-    const parsedData = parseData(formData, calculateAliquotsModalSchema, errors, setErrors, returnParsedData);
-
-    if (parsedData.success) {
-      const transformedAmounts = parsedData.data.amounts;
-      const aliquots = calculateAliquots(formData.concentration, formData.volume, transformedAmounts, concentrationUnit, volumeUnit, aliquotMassUnit);
+    if (!Object.keys(errors).length) {
+      
+      const { concentration, volume } = formData;
+      const { transformedAmounts } = transformedData;
+      const aliquots = calculateAliquots(concentration, volume, transformedAmounts, concentrationUnit, volumeUnit, aliquotMassUnit);
 
       handleCalculateAliquotsClick(aliquots);
       toggle();

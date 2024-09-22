@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, InputGroup, InputGroupText, FormGroup, Label as RSLabel } from 'reactstrap';
-import { settingsSchema, parseData } from './validationSchemas.js';
+import { settingsSchema, getErrors } from './validationSchemas.js';
 
 const SettingsModal = ({ isOpen, toggle }) => {
 
@@ -33,16 +33,12 @@ const SettingsModal = ({ isOpen, toggle }) => {
     } 
   }, [isOpen]);
 
-  const validateSettings = () => {
-    return Object.values(errors).every(msg => msg === '');
-  };
-
 
   const handleSaveClick = () => {
 
     try {
       
-      if (validateSettings()) {
+      if (!Object.keys(errors).length) {
         setIsSubmitting(true);
         toggle();
 
@@ -82,7 +78,8 @@ const SettingsModal = ({ isOpen, toggle }) => {
           [name]: value,
       };
 
-      parseData(updatedSettings, settingsSchema, errors, setErrors);
+      const parsedData = settingsSchema.safeParse(updatedSettings);
+      setErrors(getErrors(parsedData.error));
 
       return updatedSettings;
     });

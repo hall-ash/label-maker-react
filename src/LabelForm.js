@@ -7,7 +7,7 @@ import { Form, Button, FormGroup, Label as RSLabel, Input, Row, Col } from 'reac
 import ShortUniqueId from 'short-unique-id';
 import axios from 'axios';
 import SkipLabelsDropdown from "./SkipLabelsDropdown";
-import { labelFormSchema, parseData } from './validationSchemas.js';
+import { labelFormSchema, getErrors } from './validationSchemas.js';
 
 
 const LabelForm = () => {
@@ -38,45 +38,91 @@ const LabelForm = () => {
     }],
   });
 
+  const [transformedData, setTransformedData] = useState({
+    transformedLabels: '',
+    transformedSkipLabels: '',
+    transformedFileName: '',
+  });
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [downloadLink, setDownloadLink] = useState('');
   const [errors, setErrors] = useState({});
 
   const handleModalToggle = () => setIsModalOpen(!isModalOpen);
 
+  const handleBlur = () => {
+    console.log('labels', Array.isArray(formData.labels));
+    console.log('formData', formData);
+    const parsedData = labelFormSchema.safeParse(formData);
+
+    
+    setErrors(getErrors(parsedData.error));
+    console.log("errors", errors);
+  };
+
   const handleChange = (e, labelId, aliquotId) => {
     const { name, value } = e.target;
 
       // Handle changes within labels and their aliquots
       setFormData(prev => {
-        const updatedFormData = (labelId || aliquotId)
-          ? {
-              ...prev,
-              labels: prev.labels.map(label => {
-                if (label.id === labelId) {
-                  if (aliquotId) {
-                    return {
-                      ...label,
-                      aliquots: label.aliquots.map(aliquot =>
-                        aliquot.id === aliquotId ? { ...aliquot, [name]: value } : aliquot
-                      ),
-                    };
-                  }
-                  return { ...label, [name]: value };
-                }
-                return label;
-              }),
+        const updated = (labelId || aliquotId) ? 
+        ({
+          ...prev,
+          labels: prev.labels.map(label => {
+            if (label.id === labelId) {
+              if (aliquotId) {
+                return {
+                  ...label,
+                  aliquots: label.aliquots.map(aliquot =>
+                    aliquot.id === aliquotId ? { ...aliquot, [name]: value } : aliquot
+                  ),
+                };
+              }
+              return { ...label, [name]: value };
             }
-          : {
-              ...prev,
-              [name]: value,
-            };
+            return label;
+          }),
+        })
+        : ({
+          ...prev,
+          [name]: value,
+        });
+
+        // const parsedData = labelFormSchema.safeParse(updated);
+
+        // if (parsedData.data) {
+
+        //   const keyMapping = {
+        //     labels: 'transformedLabels',
+        //     skipLabels: 'transformedSkipLabels',
+        //     fileName: 'transformedFileName',
+        //   };
+
+        //   const updatedTransformedData = Object.entries(parsedData.data).reduce((acc, [key, value]) => {
+            
+        //     if (key in keyMapping) {
+        //       acc[keyMapping[key]] = value;
+        //     }
+        //     return acc;
+        //   }, {});
+
+        //   setTransformedData(prev => ({...prev, ...updatedTransformedData}));
+        // };
+
+        // const newErrors = Object.entries(updated).reduce((acc, [input, value]) => {
+        //   if (value === "") {
+        //     acc[input] = "";
+        //   }
+        //   return acc;
+        // }, {});
+
+        // setErrors(prev => ({ ...prev, ...newErrors }));
+
+        return updated;
+    });
+
+
   
-        // Validate the updated form data and update errors state
-        parseData(updatedFormData, labelFormSchema, errors, setErrors);
-  
-        return updatedFormData;
-      });
     
   };
 
@@ -164,37 +210,31 @@ const LabelForm = () => {
         fileName = 'labels'
       } = JSON.parse(localStorage.getItem('settings')) || {};
 
-      const returnParsedData = true;
-      const parsedFormData = parseData({
-        ...formData,
-        hasBorder,
-        padding,
-        fontSize,
-        fileName,
-      }, labelFormSchema, errors, setErrors, returnParsedData);
-
-      if (!parsedFormData.success) return;
+      const parsedData = labelFormSchema.safeParse(formData);
+      if (!parsedData.success) {
+        setErrors(getErrors(parsedData.error));
+        return;
+      };
 
       setIsSubmitting(true);
 
-      const { labels, skipLabels, fileName: parsedFileName } = parsedFormData.data;
 
       const validatedFormData = {
-        labels, //formattedLabels
+        labels: parsedData.data.labels, //formattedLabels
         'sheet_type': formData.labelType,
         'start_label': formData.startLabel,
-        'skip_labels': skipLabels, // cleanedSkipLabels, 
+        'skip_labels': parsedData.data.skipLabels, // cleanedSkipLabels, 
         'border': hasBorder,
         padding,
         'font_size': fontSize,
-        'file_name': parsedFileName,
+        'file_name': parsedData.data.fileName,
       };
 
       console.log('formData', validatedFormData);
 
       setFileReady(false);
 
-      const atWork = false;
+      const atWork = true;
       const api = atWork ? 'http://192.168.134.118:5000/api/generate_pdf' : 'http://192.168.4.112:5000/api/generate_pdf';
       const response = await axios.post(api, formData, {
         responseType: 'blob', // Important for handling binary data
@@ -235,6 +275,7 @@ const LabelForm = () => {
               type="select"
               value={formData.labelType}
               onChange={handleChange}
+              onBlur={handleBlur}
             >
               {labelTypeOptions.map((labelType, i) => <option key={i}>{labelType}</option>)}
             </Input>
@@ -250,6 +291,7 @@ const LabelForm = () => {
                 type="text"
                 value={formData.startLabel}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 className="form-input form-input-narrow"
               />
               {errors.startLabel && <small className="text-danger">{errors.startLabel}</small>}
@@ -260,8 +302,8 @@ const LabelForm = () => {
             skipLabelsValue={formData.skipLabels}
             skipLabelsErrorMsg={errors.skipLabels}
             onChange={handleChange} 
+            onBlur={handleBlur}
           />
-          {errors.skipLabels && <small className="text-danger">{errors.skipLabels}</small>}
     
           <LabelList 
             labels={formData.labels} 
@@ -270,7 +312,9 @@ const LabelForm = () => {
             addAliquot={addAliquot}
             removeAliquot={removeAliquot}
             onChange={handleChange}
+            onBlur={handleBlur}
             setLabelAliquots={setLabelAliquots}
+            labelErrors={errors.labels}
           />
           {errors.labels && <small className="text-danger">{errors.labels}</small>}
           <div className="form-submit-container">
