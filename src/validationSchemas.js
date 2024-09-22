@@ -2,9 +2,27 @@ import { z } from 'zod';
 import DOMPurify from 'dompurify';
 import filenamify from 'filenamify/browser';
 
-const startLabelSchema = z.string().regex(/^[a-zA-Z]\d{1,2}$/, {
-  message: "Invalid label coordinates",
-});
+// const startLabelSchema = z.optional(z.string().regex(/^[a-zA-Z]\d{1,2}$/, {
+//   message: "Invalid label coordinates",
+// }));
+
+// const validatePattern = (value) => {
+//   const pattern = /^[a-zA-Z]\d{1,2}$/; // Define your regex pattern
+//   // Allow empty strings or strings that match the pattern
+//   return value === '' || pattern.test(value);
+// };
+
+// // Define the schema using Zod and pass the custom function to `.refine()`
+// const schema = z.string().refine(validatePattern, {
+//   message: 'Invalid input: must be an empty string or match the specified pattern',
+// });
+
+const startLabelSchema = z.string()
+                .refine(s => {
+                  const startLabelPattern = /^[a-zA-Z]\d{1,2}$/;
+                  return s === "" || startLabelPattern.test(s)
+                }, { message: 'Invalid label coordinates' }
+              );
 
 const skipLabelsSchema = z
   .string()
@@ -89,37 +107,26 @@ const calculateAliquotsModalSchema = z.object({
   'amounts': amountsSchema,
 });
 
-const labelFormSchema = {
-  labels: z.array(labelsSchema),
+const labelFormSchema = z.object({
+  labels: labelsSchema,
   labelType: z.string(),
   startLabel: startLabelSchema,
-  skipLabels: skipLabelsSchema, 
-  ...settingsSchema,
-};
+  skipLabels: z.optional(skipLabelsSchema), 
+});
 
-const parseData = (updatedData, validationSchema, errors, setErrors, returnParsedData = false) => {
-  const parsedData = validationSchema.safeParse(updatedData);
-
-  if (parsedData.error) {
-    const issueMsgs = parsedData.error.issues.reduce((msgs, issue) => {
-     const { path: inputs, message } = issue;
-     msgs[inputs[0]] = message;
-     return msgs;
-    }, {});
-    setErrors(issueMsgs);
-  } else {
-    const blankErrors = Object.keys(errors).reduce((blank, key) => {
-      blank[key] = '';
-      return blank;
-    }, {});
-    setErrors(blankErrors);
-  }
-
-  if (returnParsedData) return parsedData;
+const getErrors = parsedDataError => {
+   // Check if there are any issues and reduce them to an object with error messages
+  return parsedDataError?.issues?.reduce((msgs, issue) => {
+    const { path: inputs, message } = issue; // Destructure path and message from the issue
+    if (inputs.length > 0) { // Ensure path has at least one element
+      msgs[inputs[0]] = message; // Map the first path element to the error message
+    }
+    return msgs;
+  }, {}) || {}; // Return empty object if no errors
 };
 
 
-export { settingsSchema, labelFormSchema, calculateAliquotsModalSchema, parseData };
+export { settingsSchema, labelFormSchema, calculateAliquotsModalSchema, getErrors };
 
 
 
