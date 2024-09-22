@@ -49,32 +49,34 @@ const LabelForm = () => {
 
       // Handle changes within labels and their aliquots
       setFormData(prev => {
-        const updated = (labelId || aliquotId) ? 
-        ({
-          ...prev,
-          labels: prev.labels.map(label => {
-            if (label.id === labelId) {
-              if (aliquotId) {
-                return {
-                  ...label,
-                  aliquots: label.aliquots.map(aliquot =>
-                    aliquot.id === aliquotId ? { ...aliquot, [name]: value } : aliquot
-                  ),
-                };
-              }
-              return { ...label, [name]: value };
+        const updatedFormData = (labelId || aliquotId)
+          ? {
+              ...prev,
+              labels: prev.labels.map(label => {
+                if (label.id === labelId) {
+                  if (aliquotId) {
+                    return {
+                      ...label,
+                      aliquots: label.aliquots.map(aliquot =>
+                        aliquot.id === aliquotId ? { ...aliquot, [name]: value } : aliquot
+                      ),
+                    };
+                  }
+                  return { ...label, [name]: value };
+                }
+                return label;
+              }),
             }
-            return label;
-          }),
-        })
-        : ({
-          ...prev,
-          [name]: value,
-        })
-
-        parseData(updated, labelFormSchema, errors, setErrors);
-        return updated;
-    });
+          : {
+              ...prev,
+              [name]: value,
+            };
+  
+        // Validate the updated form data and update errors state
+        parseData(updatedFormData, labelFormSchema, errors, setErrors);
+  
+        return updatedFormData;
+      });
     
   };
 
