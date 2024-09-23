@@ -1,10 +1,10 @@
 import './Label.css';
-import React from "react";
+import React, { useState } from "react";
 import Aliquot from "./Aliquot";
 import CalculateAliquotsModal from './CalculateAliquotsModal';
 import { Row, Col, Label as RSLabel, FormGroup, Input, Container, Button } from 'reactstrap';
 import { FaPlusSquare, FaTimes } from 'react-icons/fa';
-
+import { nonnegativeNumberInputSchema } from './validationSchemas';
 import './Label.css';
 
 function Label({ id, labeltext, labelCount, aliquots, removeLabel, addAliquot, removeAliquot, onChange, setAliquots, displayAliquots }) {
@@ -25,6 +25,14 @@ function Label({ id, labeltext, labelCount, aliquots, removeLabel, addAliquot, r
   const handleRemoveLabel = () => removeLabel(id);
   const toggleShowAliquots = () => {
     handleChange({ target: { name: "displayAliquots", checked: !displayAliquots, value: !displayAliquots } });
+  };
+
+  const [errors, setErrors] = useState({ labelcount: '' });
+
+  const handleBlur = () => {
+    const parsedLabelCount = nonnegativeNumberInputSchema.safeParse(labelCount);
+
+    setErrors(prev => ({ ...prev, labelcount: parsedLabelCount.error }));
   };
 
   return (
@@ -55,10 +63,12 @@ function Label({ id, labeltext, labelCount, aliquots, removeLabel, addAliquot, r
                 type="number"
                 value={labelCount}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 min="0"
                 bsSize="sm"
                 className="label-count-input"
               />
+              {errors.labelcount && <small className="text-danger">{errors.labelcount}</small>}
             </FormGroup>
           </Col>
         )}

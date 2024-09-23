@@ -47,14 +47,20 @@ const skipLabelsSchema = z
     }
   );
 
+const numberInputSchema = z.string()
+  .transform(value => parseFloat(value)) // Transform string input to a float
+  .refine(number => !isNaN(number) && isFinite(number), { message: 'Enter a number' }); 
+
+const nonnegativeNumberInputSchema = numberInputSchema.refine(number => number >= 0, { message: 'Enter a number greater than or equal to 0' });
+
 const aliquotSchema = z.object({
   aliquottext: z.string(),
-  number: z.number(),
+  number: numberInputSchema,
 });
 
 const labelSchema = z.object({
   labeltext: z.string(),
-  labelcount: z.number(),
+  labelcount: numberInputSchema,
   displayAliquots: z.boolean(),
   aliquots: z.array(aliquotSchema),
 });
@@ -76,11 +82,7 @@ const labelsSchema = z
   .refine(labels => labels.length > 0, { message: "Add a label to print" });
 
 
-const numberInputSchema = z.string({
-    required_error: "Enter a value",
-  })
-  .transform(value => parseFloat(value)) // Transform string input to a float
-  .refine(number => !isNaN(number) && isFinite(number), { message: 'Enter a valid number' }); 
+
 
 
 const settingsSchema = z.object({
@@ -126,7 +128,7 @@ const getErrors = parsedDataError => {
 };
 
 
-export { settingsSchema, labelFormSchema, calculateAliquotsModalSchema, getErrors };
+export { settingsSchema, labelFormSchema, calculateAliquotsModalSchema, labelSchema, nonnegativeNumberInputSchema, getErrors };
 
 
 

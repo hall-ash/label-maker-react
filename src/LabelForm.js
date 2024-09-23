@@ -7,7 +7,8 @@ import { Form, Button, FormGroup, Label as RSLabel, Input, Row, Col } from 'reac
 import ShortUniqueId from 'short-unique-id';
 import axios from 'axios';
 import SkipLabelsDropdown from "./SkipLabelsDropdown";
-import { labelFormSchema, getErrors } from './validationSchemas.js';
+import { labelFormSchema, settingsSchema, getErrors } from './validationSchemas.js';
+import { FaHeartPulse } from 'react-icons/fa6';
 
 
 const LabelForm = () => {
@@ -50,15 +51,15 @@ const LabelForm = () => {
 
   const handleModalToggle = () => setIsModalOpen(!isModalOpen);
 
-  const handleBlur = () => {
-    console.log('labels', Array.isArray(formData.labels));
-    console.log('formData', formData);
-    const parsedData = labelFormSchema.safeParse(formData);
+  // const handleBlur = () => {
+  //   console.log('labels', Array.isArray(formData.labels));
+  //   console.log('formData', formData);
+  //   const parsedData = labelFormSchema.safeParse(formData);
 
     
-    setErrors(getErrors(parsedData.error));
-    console.log("errors", errors);
-  };
+  //   setErrors(getErrors(parsedData.error));
+  //   console.log("errors", errors);
+  // };
 
   const handleChange = (e, labelId, aliquotId) => {
     const { name, value } = e.target;
@@ -121,9 +122,6 @@ const LabelForm = () => {
         return updated;
     });
 
-
-  
-    
   };
 
   const addLabel = () => {
@@ -227,7 +225,7 @@ const LabelForm = () => {
         'border': hasBorder,
         padding,
         'font_size': fontSize,
-        'file_name': parsedData.data.fileName,
+        'file_name': fileName,
       };
 
       console.log('formData', validatedFormData);
@@ -256,7 +254,7 @@ const LabelForm = () => {
     } catch (error) {
       if (error.code === 'ECONNABORTED') {
         console.error('Request timed out');
-        // display error to user
+        // add code to display error to user here
       }
       console.error('Error downloading the file:', error);
     }
@@ -314,7 +312,6 @@ const LabelForm = () => {
             onChange={handleChange}
             onBlur={handleBlur}
             setLabelAliquots={setLabelAliquots}
-            labelErrors={errors.labels}
           />
           {errors.labels && <small className="text-danger">{errors.labels}</small>}
           <div className="form-submit-container">
