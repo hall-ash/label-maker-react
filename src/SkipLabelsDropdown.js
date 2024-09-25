@@ -9,7 +9,7 @@ import {
   Input,
 } from 'reactstrap';
 
-const SkipLabelsDropdown = ({ skipLabelsErrorMsg, skipLabelsValue, onChange, onBlur }) => {
+const SkipLabelsDropdown = ({ skipLabelsErrorMsg, skipLabelsValue, onChange }) => {
   const [open, setOpen] = useState('0');
   const toggle = id => {
     if (open === id) {
@@ -22,7 +22,7 @@ const SkipLabelsDropdown = ({ skipLabelsErrorMsg, skipLabelsValue, onChange, onB
   // const toggle = () => setOpen(!open);
   const handleChange = e => onChange(e);
 
-  const handleBlur = () => onBlur();
+ 
 
   return (
     <FormGroup className="mb-3">
@@ -39,7 +39,7 @@ const SkipLabelsDropdown = ({ skipLabelsErrorMsg, skipLabelsValue, onChange, onB
                 placeholder={`1: A1-D4, E17${String.fromCharCode(10)}2: B2-D5`}
                 value={skipLabelsValue}
                 onChange={handleChange}
-                onBlur={handleBlur}
+         
                 className="form-textarea"
               />
               {skipLabelsErrorMsg && <small className="text-danger">{skipLabelsErrorMsg}</small>}
