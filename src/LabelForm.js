@@ -209,23 +209,26 @@ const LabelForm = () => {
       } = JSON.parse(localStorage.getItem('settings')) || {};
 
       const parsedData = labelFormSchema.safeParse(formData);
+      console.log("parsedData", parsedData);
       if (!parsedData.success) {
         setErrors(getErrors(parsedData.error));
+        console.log("errors", parsedData.error);
         return;
       };
 
       setIsSubmitting(true);
 
+      
 
       const validatedFormData = {
         labels: parsedData.data.labels, //formattedLabels
         'sheet_type': formData.labelType,
         'start_label': formData.startLabel,
         'skip_labels': parsedData.data.skipLabels, // cleanedSkipLabels, 
-        'border': hasBorder,
-        padding,
-        'font_size': fontSize,
-        'file_name': fileName,
+        'border': false, //hasBorder,
+        'padding': 1.75, //,
+        'font_size': 12, //fontSize,
+        'file_name': 'labels', //fileName,
       };
 
       console.log('formData', validatedFormData);
@@ -234,7 +237,7 @@ const LabelForm = () => {
 
       const atWork = true;
       const api = atWork ? 'http://192.168.134.118:5000/api/generate_pdf' : 'http://192.168.4.112:5000/api/generate_pdf';
-      const response = await axios.post(api, formData, {
+      const response = await axios.post(api, validatedFormData, {
         responseType: 'blob', // Important for handling binary data
         timeout: 10000, // timeout after 10 seconds
       });
@@ -273,7 +276,6 @@ const LabelForm = () => {
               type="select"
               value={formData.labelType}
               onChange={handleChange}
-              onBlur={handleBlur}
             >
               {labelTypeOptions.map((labelType, i) => <option key={i}>{labelType}</option>)}
             </Input>
@@ -289,7 +291,6 @@ const LabelForm = () => {
                 type="text"
                 value={formData.startLabel}
                 onChange={handleChange}
-                onBlur={handleBlur}
                 className="form-input form-input-narrow"
               />
               {errors.startLabel && <small className="text-danger">{errors.startLabel}</small>}
@@ -300,7 +301,6 @@ const LabelForm = () => {
             skipLabelsValue={formData.skipLabels}
             skipLabelsErrorMsg={errors.skipLabels}
             onChange={handleChange} 
-            onBlur={handleBlur}
           />
     
           <LabelList 
@@ -310,7 +310,6 @@ const LabelForm = () => {
             addAliquot={addAliquot}
             removeAliquot={removeAliquot}
             onChange={handleChange}
-            onBlur={handleBlur}
             setLabelAliquots={setLabelAliquots}
           />
           {errors.labels && <small className="text-danger">{errors.labels}</small>}
