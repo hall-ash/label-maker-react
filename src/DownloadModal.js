@@ -2,6 +2,11 @@ import React from 'react';
 import { Modal, ModalHeader, ModalBody, Button } from 'reactstrap';
 
 const DownloadModal = ({ isOpen, toggle, downloadLink }) => {
+
+  const {
+    fileName = 'labels'
+  } = JSON.parse(localStorage.getItem('settings')) || {};
+
   return (
     <Modal isOpen={isOpen} toggle={toggle}>
       <ModalHeader toggle={toggle}>Download PDF</ModalHeader>
@@ -9,12 +14,12 @@ const DownloadModal = ({ isOpen, toggle, downloadLink }) => {
         <Button color="primary" onClick={() => {
           const link = document.createElement('a');
           link.href = downloadLink;
-          link.download = 'demo.pdf';
+          link.download = `${fileName}.pdf`;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
         }}>
-          Download Label Sheet(s)
+          Download {fileName}.pdf
         </Button>
       </ModalBody>
     </Modal>
