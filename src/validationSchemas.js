@@ -52,15 +52,16 @@ const numberInputSchema = z.string()
   .refine(number => !isNaN(number) && isFinite(number), { message: 'Enter a number' }); 
 
 const nonnegativeNumberInputSchema = numberInputSchema.refine(number => number >= 0, { message: 'Enter a number greater than or equal to 0' });
+const labelOrAliquotQuantitySchema = z.string().refine(input => input === "").or(nonnegativeNumberInputSchema)
 
 const aliquotSchema = z.object({
   aliquottext: z.string(),
-  number: numberInputSchema,
+  number: labelOrAliquotQuantitySchema,
 });
 
 const labelSchema = z.object({
   labeltext: z.string(),
-  labelcount: numberInputSchema,
+  labelcount: labelOrAliquotQuantitySchema,
   displayAliquots: z.boolean(),
   aliquots: z.array(aliquotSchema),
 });
@@ -81,15 +82,24 @@ const labelsSchema = z
   )
   .refine(labels => labels.length > 0, { message: "Add a label to print" });
 
-
-
-
+// const settingsSchema = z.object({
+//   hasBorder: z.boolean(),
+//   fontSize: z.string().refine(num => Number(num) > 0 && Number(num) <= 100 , { message: 'Font size must be between 1 and 100 inclusive' }).or(z.number().refine(num => num > 0 && num <= 100), { message: 'Font size must be between 1 and 100 inclusive' }),//z.string().refine(input => input === "").or(numberInputSchema.refine(number => number > 0 && number <= 100, { message: 'Font size must be between 1 and 100 inclusive' })).or(z.number().refine(num => num > 0 && num <= 100)), 
+//   padding: z.string().refine(num => Number(num) >= 0 && Number(num) <= 10 , { message: 'Padding must be between 0 and 10 inclusive' }).or(z.number().refine(num => num >= 0 && num <= 10), { message: 'Padding must be between 0 and 10 inclusive' }), //z.string().refine(input => input === "").or(numberInputSchema.refine(number => number >= 0 && number <= 10, { message: 'Padding must be between 0 and 10 inclusive' })).or(z.number().refine(num => num >= 0 && num <= 10)), 
+//   fileName: z.string().transform(input => filenamify(DOMPurify.sanitize(input))), 
+// });
 
 const settingsSchema = z.object({
   hasBorder: z.boolean(),
-  fontSize: numberInputSchema.refine(number => number > 0 && number <= 100, { message: 'Font size must be between 1 and 100 inclusive' }), 
-  padding: numberInputSchema.refine(number => number >= 0 && number <= 10, { message: 'Padding must be between 0 and 10 inclusive' }), 
-  fileName: z.string().transform(input => filenamify(DOMPurify.sanitize(input))), 
+  fontSize: z.union([
+    z.string().regex(/[0-9]*/, { message: 'Font size must be a number' }).transform(Number).refine(num => num > 0 && num <= 100, { message: 'Font size must be between 1 and 100 inclusive' }),
+    z.number().refine(num => num > 0 && num <= 100, { message: 'Font size must be between 1 and 100 inclusive' })
+  ]),
+  padding: z.union([
+    z.string().regex(/[0-9]*/, { message: 'Padding must be a number' }).transform(Number).refine(num => num >= 0 && num <= 10, { message: 'Padding must be between 0 and 10 inclusive' }),
+    z.number().refine(num => num >= 0 && num <= 10, { message: 'Padding must be between 0 and 10 inclusive' })
+  ]),
+  fileName: z.string().transform(input => filenamify(DOMPurify.sanitize(input))),
 });
 
 // expected array, received string
