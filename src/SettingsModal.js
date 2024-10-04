@@ -1,66 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, InputGroup, InputGroupText, FormGroup, Label as RSLabel } from 'reactstrap';
 import { settingsSchema, getErrors } from './validationSchemas.js';
+import { useForm } from "react-hook-form"
 
 const SettingsModal = ({ isOpen, toggle }) => {
 
-  const defaultSettings = {
-    'hasBorder': false, 
-    'fontSize': 12, 
-    'padding': 1.75,
-    'fileName': 'labels',
-  };
-
-  const [settings, setSettings] = useState(defaultSettings);
-  const [errors, setErrors] = useState({}); 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (isOpen) {
-      const defaultSettings = {
-        'hasBorder': false, 
-        'fontSize': 12, 
-        'padding': 1.75,
-        'fileName': 'labels',
-      }
-      const savedSettings = JSON.parse(localStorage.getItem('settings'));
-      if (savedSettings) {
-        const fileName = savedSettings.fileName ? savedSettings.fileName : defaultSettings.fileName;
-        setSettings({ ...defaultSettings, ...savedSettings, fileName });
-      } else {
-        setSettings(defaultSettings);
-      }
-    } 
-  }, [isOpen]);
-
+  const { savedSettings, setSavedSettings } = useContext(SettingsContext);
+  const [settings, setSettings] = useState(savedSettings);
 
   const handleSaveClick = () => {
-
-    try {
-      
-      if (!Object.keys(errors).length) {
-        setIsSubmitting(true);
-        toggle();
-
-        const changedSettings = Object.fromEntries(
-          Object.entries(settings).filter(
-            ([key, value]) => key in defaultSettings && value !== defaultSettings[key]
-          )
-        );
-        
-        if (Object.keys(changedSettings).length) {
-          localStorage.setItem('settings', JSON.stringify(changedSettings));
-        } else {
-          localStorage.removeItem('settings');
-        }
-      } 
-      setIsSubmitting(false);
-    } catch (e) {
-      console.error(e);
-    }
-
+    setSavedSettings(settings);
   };
- 
 
   const handleBorderToggle = () => {
     setSettings(prevSettings => ({
