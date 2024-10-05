@@ -1,38 +1,114 @@
-import React, { useState, useContext } from 'react';
+// import React, { useContext } from 'react';
+// import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, InputGroup, InputGroupText, FormGroup, Label as RSLabel } from 'reactstrap';
+// import { useForm } from "react-hook-form"
+
+// const SettingsModal = ({ isOpen, toggle }) => {
+//   const { savedSettings, setSavedSettings } = useContext(SettingsContext);
+//   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
+//     defaultValues: savedSettings
+//   });
+
+//   const onSubmit = (data) => {
+//     setSavedSettings(data);
+//   };
+
+//   return (
+//     <Modal isOpen={isOpen} toggle={toggle}>
+//       <ModalHeader toggle={toggle}>Label Settings</ModalHeader>
+//       <ModalBody>
+//         <form onSubmit={handleSubmit(onSubmit)}>
+//           <FormGroup>
+//             <RSLabel className="padding" for="padding">Padding</RSLabel>
+//             <Input
+//               id="padding"
+//               name="padding"
+//               type="number"
+//               min="0"
+//               bsSize="sm"
+//               className="label-padding-input"
+//               {...register('padding', {
+//                 min: { value: 0, message: 'Padding must be positive' },
+//                 max: { value: 100, message: 'Padding cannot be greater than 100' },
+//                 valueAsNumber: true,
+//                 validate: value => !isNaN(value) || 'Please enter a valid number'
+//               })}
+//             />
+//             {errors.padding && <small className="text-danger">{errors.padding.message}</small>}
+//           </FormGroup>
+
+//           <FormGroup>
+//             <RSLabel className="fontSize" for="fontSize">Font Size</RSLabel>
+//             <Input
+//               id="fontSize"
+//               name="fontSize"
+//               type="number"
+//               min="1"
+//               bsSize="sm"
+//               className="label-font-size-input"
+//               {...register('fontSize', { required: true })}
+//             />
+//             {errors.fontSize && <small className="text-danger">Font size is required</small>}
+//           </FormGroup>
+
+//           <FormGroup check className="d-flex align-items-center form-check-group">
+//             <Input
+//               type="checkbox"
+//               id="border"
+//               name="border"
+//               className="form-check-input"
+//               {...register('hasBorder')}
+//             />
+//             <RSLabel htmlFor="border" check className="form-check-label ms-2">
+//               Add Border
+//             </RSLabel>
+//           </FormGroup>
+
+//           <FormGroup>
+//             <RSLabel for="fileName" className="font-weight-bold">Save pdf as...</RSLabel>
+//             <InputGroup>
+//               <Input
+//                 id="fileName"
+//                 name="fileName"
+//                 type="text"
+//                 bsSize="sm"
+//                 {...register('fileName', { required: true })}
+//               />
+//               <InputGroupText>.pdf</InputGroupText>
+//             </InputGroup>
+//             {errors.fileName && <small className="text-danger">File name is required</small>}
+//           </FormGroup>
+//         </form>
+//       </ModalBody>
+
+//       <ModalFooter className="justify-content-center">
+//         <Button color="secondary" onClick={toggle}>
+//           Cancel
+//         </Button>{' '}
+//         <Button color="primary" onClick={handleSubmit(onSubmit)} disabled={isSubmitting}>Save</Button>
+//       </ModalFooter>
+//     </Modal>
+//   );
+// };
+
+// export default SettingsModal;
+
+import React, { useContext } from 'react';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, InputGroup, InputGroupText, FormGroup, Label as RSLabel } from 'reactstrap';
-import { settingsSchema, getErrors } from './validationSchemas.js';
-import { useForm } from "react-hook-form"
+import { settingsSchema } from './validationSchemas.js';
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from '@hookform/resolvers/zod';
 
 const SettingsModal = ({ isOpen, toggle }) => {
-
   const { savedSettings, setSavedSettings } = useContext(SettingsContext);
-  const [settings, setSettings] = useState(savedSettings);
 
-  const handleSaveClick = () => {
-    setSavedSettings(settings);
-  };
+  const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm({
+    defaultValues: savedSettings,
+    resolver: zodResolver(settingsSchema),
+  });
 
-  const handleBorderToggle = () => {
-    setSettings(prevSettings => ({
-      ...prevSettings,
-      hasBorder: !prevSettings.hasBorder,
-    }));
-  };
-
-  const handleChange = e => {
-    const { name, value } = e.target;
-
-    setSettings(prevSettings => {
-      const updatedSettings = {
-          ...prevSettings,
-          [name]: value,
-      };
-
-      const parsedData = settingsSchema.safeParse(updatedSettings);
-      setErrors(getErrors(parsedData.error));
-
-      return updatedSettings;
-    });
+  const onSubmit = (data) => {
+    setSavedSettings(data);
+    toggle(); // Close the modal after saving
   };
 
   return (
@@ -41,42 +117,56 @@ const SettingsModal = ({ isOpen, toggle }) => {
       <ModalBody>
         <FormGroup>
           <RSLabel className="padding" for="padding">Padding</RSLabel>
-          <Input
-            id="padding"
+          <Controller
+            control={control}
             name="padding"
-            type="number"
-            value={settings.padding}
-            onChange={handleChange}
-            min="0"
-            bsSize="sm"
-            className="label-padding-input"
+            render={({ field }) => (
+              <Input
+                id="padding"
+                type="number"
+                min="0"
+                bsSize="sm"
+                className="label-padding-input"
+                valueAsNumber
+                {...field}
+              />
+            )}
           />
-          {errors.padding && <small className="text-danger">{errors.padding}</small>}
+          {errors.padding && <small className="text-danger">{errors.padding.message}</small>}
         </FormGroup>
 
         <FormGroup>
           <RSLabel className="fontSize" for="fontSize">Font Size</RSLabel>
-          <Input
-            id="fontSize"
+          <Controller
+            control={control}
             name="fontSize"
-            type="number"
-            value={settings.fontSize}
-            onChange={handleChange}
-            min="1"
-            bsSize="sm"
-            className="label-font-size-input"
+            render={({ field }) => (
+              <Input
+                id="fontSize"
+                type="number"
+                min="1"
+                bsSize="sm"
+                className="label-font-size-input"
+                valueAsNumber
+                {...field}
+              />
+            )}
           />
-          {errors.fontSize && <small className="text-danger">{errors.fontSize}</small>}
+          {errors.fontSize && <small className="text-danger">{errors.fontSize.message}</small>}
         </FormGroup>
 
         <FormGroup check className="d-flex align-items-center form-check-group">
-          <Input
-            type="checkbox"
-            id="border"
-            name="border"
-            checked={settings.hasBorder}
-            onChange={handleBorderToggle}
-            className="form-check-input"
+          <Controller
+            control={control}
+            name="hasBorder"
+            render={({ field }) => (
+              <Input
+                type="checkbox"
+                id="border"
+                className="form-check-input"
+                {...field}
+              />
+            )}
           />
           <RSLabel htmlFor="border" check className="form-check-label ms-2">
             Add Border
@@ -86,17 +176,21 @@ const SettingsModal = ({ isOpen, toggle }) => {
         <FormGroup>
           <RSLabel for="fileName" className="font-weight-bold">Save pdf as...</RSLabel>
           <InputGroup>
-            <Input
-              id="fileName"
+            <Controller
+              control={control}
               name="fileName"
-              type="text"
-              value={settings.fileName}
-              onChange={handleChange}
-              bsSize="sm"
+              render={({ field }) => (
+                <Input
+                  id="fileName"
+                  type="text"
+                  bsSize="sm"
+                  {...field}
+                />
+              )}
             />
             <InputGroupText>.pdf</InputGroupText>
           </InputGroup>
-          {errors.fileName && <small className="text-danger">{errors.fileName}</small>}
+          {errors.fileName && <small className="text-danger">{errors.fileName.message}</small>}
         </FormGroup>
       </ModalBody>
 
@@ -104,10 +198,11 @@ const SettingsModal = ({ isOpen, toggle }) => {
         <Button color="secondary" onClick={toggle}>
           Cancel
         </Button>{' '}
-        <Button color="primary" onClick={handleSaveClick} disabled={isSubmitting}>Save</Button>
+        <Button color="primary" onClick={handleSubmit(onSubmit)} disabled={isSubmitting}>Save</Button>
       </ModalFooter>
     </Modal>
   );
 };
 
 export default SettingsModal;
+
