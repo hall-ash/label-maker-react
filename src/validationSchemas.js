@@ -56,12 +56,16 @@ const labelOrAliquotQuantitySchema = z.string().refine(input => input === "").or
 
 const aliquotSchema = z.object({
   aliquottext: z.string(),
-  number: labelOrAliquotQuantitySchema,
+  //number: labelOrAliquotQuantitySchema,
+  number: z.number({ invalid_type_error: "Number of aliquots must be a valid number", })
+           .nonnegative({ message: 'Number can\'t be negative', })
 });
 
 const labelSchema = z.object({
   labeltext: z.string(),
-  labelcount: labelOrAliquotQuantitySchema,
+  //labelcount: labelOrAliquotQuantitySchema,
+  labelcount: z.number({ invalid_type_error: "Number of labels must be a valid number", })
+               .nonnegative({ message: 'Number can\'t be negative', }),
   displayAliquots: z.boolean(),
   aliquots: z.array(aliquotSchema),
 });
@@ -91,14 +95,20 @@ const labelsSchema = z
 
 const settingsSchema = z.object({
   hasBorder: z.boolean(),
-  fontSize: z.union([
-    z.string().regex(/[0-9]*/, { message: 'Font size must be a number' }).transform(Number).refine(num => num > 0 && num <= 100, { message: 'Font size must be between 1 and 100 inclusive' }),
-    z.number().refine(num => num > 0 && num <= 100, { message: 'Font size must be between 1 and 100 inclusive' })
-  ]),
-  padding: z.union([
-    z.string().regex(/[0-9]*/, { message: 'Padding must be a number' }).transform(Number).refine(num => num >= 0 && num <= 10, { message: 'Padding must be between 0 and 10 inclusive' }),
-    z.number().refine(num => num >= 0 && num <= 10, { message: 'Padding must be between 0 and 10 inclusive' })
-  ]),
+  fontSize: z.number({ invalid_type_error: "Font size must be a number", })
+             .positive({ message: 'Font size must be greater than 0', })
+             .lte(100, { message: 'Font size must no greater than 100', }),
+  // fontSize: z.union([
+  //   z.string().regex(/[0-9]*/, { message: 'Font size must be a number' }).transform(Number).refine(num => num > 0 && num <= 100, { message: 'Font size must be between 1 and 100 inclusive' }),
+  //   z.number().refine(num => num > 0 && num <= 100, { message: 'Font size must be between 1 and 100 inclusive' })
+  // ]),
+  // padding: z.union([
+  //   z.string().regex(/[0-9]*/, { message: 'Padding must be a number' }).transform(Number).refine(num => num >= 0 && num <= 10, { message: 'Padding must be between 0 and 10 inclusive' }),
+  //   z.number().refine(num => num >= 0 && num <= 10, { message: 'Padding must be between 0 and 10 inclusive' })
+  // ]),
+  padding: z.number({ invalid_type_error: "Padding must be a number", })
+            .nonnegative({ message: 'Padding can\'t be negative', })
+            .lte(10, { message: 'Padding must no greater than 10', }),
   fileName: z.string().transform(input => filenamify(DOMPurify.sanitize(input))),
 });
 
