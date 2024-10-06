@@ -97,22 +97,48 @@ import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, InputGroup, 
 import { settingsSchema } from './validationSchemas.js';
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod';
+import SettingsContext from './SettingsContext';
+import useLocalStorage from './useLocalStorage.js';
 
 const SettingsModal = ({ isOpen, toggle }) => {
   const { savedSettings, setSavedSettings } = useContext(SettingsContext);
 
-  const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm({
+  const defaultSettings = {
+    'hasBorder': false, 
+    'fontSize': 12, 
+    'padding': 1.75,
+    'fileName': 'labels',
+  };
+
+  const [localStorageSettings, setLocalStorageSettings] = useLocalStorage('LabelSettings', defaultSettings);
+
+  const { control, handleSubmit, formState: { errors, isSubmitting }, setValue, clearErrors } = useForm({
     defaultValues: savedSettings,
     resolver: zodResolver(settingsSchema),
   });
 
   const onSubmit = (data) => {
     setSavedSettings(data);
+    setLocalStorageSettings(data);
     toggle(); // Close the modal after saving
   };
 
+
+  const handleCancel = () => {
+    toggle(); // close modal
+  
+    // reset any changed settings
+    Object.keys(savedSettings).forEach(field => {
+      setValue(field, savedSettings[field]);
+    });
+    
+    // clear any errors 
+    clearErrors();
+  };
+
+
   return (
-    <Modal isOpen={isOpen} toggle={toggle}>
+    <Modal isOpen={isOpen} toggle={handleCancel}>
       <ModalHeader toggle={toggle}>Label Settings</ModalHeader>
       <ModalBody>
         <FormGroup>
@@ -120,14 +146,16 @@ const SettingsModal = ({ isOpen, toggle }) => {
           <Controller
             control={control}
             name="padding"
+       
             render={({ field }) => (
               <Input
                 id="padding"
-                type="number"
-                min="0"
+                type="text"
                 bsSize="sm"
                 className="label-padding-input"
-                valueAsNumber
+                onChange={(e) => {
+                  field.onChange(e.target.value);
+                }}
                 {...field}
               />
             )}
@@ -143,11 +171,9 @@ const SettingsModal = ({ isOpen, toggle }) => {
             render={({ field }) => (
               <Input
                 id="fontSize"
-                type="number"
-                min="1"
+                type="text"
                 bsSize="sm"
                 className="label-font-size-input"
-                valueAsNumber
                 {...field}
               />
             )}
@@ -195,7 +221,7 @@ const SettingsModal = ({ isOpen, toggle }) => {
       </ModalBody>
 
       <ModalFooter className="justify-content-center">
-        <Button color="secondary" onClick={toggle}>
+        <Button color="secondary" onClick={handleCancel}>
           Cancel
         </Button>{' '}
         <Button color="primary" onClick={handleSubmit(onSubmit)} disabled={isSubmitting}>Save</Button>
