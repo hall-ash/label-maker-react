@@ -1,12 +1,12 @@
 // import logo from './logo.svg';
-import React, { createContext, useState, useRef } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './HomePage';
 import AboutPage from './AboutPage';
 import Navigation from './Navigation';
 import useLocalStorage from './useLocalStorage';
-
-const SettingsContext = createContext(null);
+import SettingsContext from './SettingsContext';
+import _ from 'lodash';
 
 const App = () => {
 
@@ -20,8 +20,15 @@ const App = () => {
   const [localStorageSettings, setLocalStorageSettings] = useLocalStorage('LabelSettings', defaultSettings);
   const [savedSettings, setSavedSettings] = useState(localStorageSettings);
 
-  const handleBeforeUnload = () => {
-    setLocalStorageSettings(savedSettings); // Save the current settings before unload
+  const handleBeforeUnload = (e) => {
+    // check to see if savedSettings have changed
+    console.log('savedSettings', savedSettings);
+    if (! _.isEqual(localStorageSettings, savedSettings)) {
+      setLocalStorageSettings(savedSettings); // Save the current settings before unload
+    }
+
+    e.preventDefault(); // Prevent the default unload action
+    e.returnValue = ''; // Required for showing the confirmation dialog
   };
 
   useEffect(() => {
