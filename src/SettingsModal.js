@@ -92,16 +92,15 @@
 
 // export default SettingsModal;
 
-import React, { useContext } from 'react';
+import React from 'react';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, InputGroup, InputGroupText, FormGroup, Label as RSLabel } from 'reactstrap';
 import { settingsSchema } from './validationSchemas.js';
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod';
-import SettingsContext from './SettingsContext';
 import useLocalStorage from './useLocalStorage.js';
+import _ from 'lodash';
 
 const SettingsModal = ({ isOpen, toggle }) => {
-  const { savedSettings, setSavedSettings } = useContext(SettingsContext);
 
   const defaultSettings = {
     'hasBorder': false, 
@@ -110,16 +109,18 @@ const SettingsModal = ({ isOpen, toggle }) => {
     'fileName': 'labels',
   };
 
-  const [localStorageSettings, setLocalStorageSettings] = useLocalStorage('LabelSettings', defaultSettings);
+  const [settings, setSettings] = useLocalStorage('LabelSettings', defaultSettings);
 
   const { control, handleSubmit, formState: { errors, isSubmitting }, setValue, clearErrors } = useForm({
-    defaultValues: savedSettings,
+    defaultValues: settings,
     resolver: zodResolver(settingsSchema),
   });
 
   const onSubmit = (data) => {
-    setSavedSettings(data);
-    setLocalStorageSettings(data);
+    if (! _.isEqual(data, settings)) {
+      setSettings(data); // save data to local storage if changed
+    }
+    
     toggle(); // Close the modal after saving
   };
 
@@ -128,8 +129,8 @@ const SettingsModal = ({ isOpen, toggle }) => {
     toggle(); // close modal
   
     // reset any changed settings
-    Object.keys(savedSettings).forEach(field => {
-      setValue(field, savedSettings[field]);
+    Object.keys(settings).forEach(field => {
+      setValue(field, settings[field]);
     });
     
     // clear any errors 
