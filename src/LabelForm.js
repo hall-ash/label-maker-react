@@ -9,25 +9,21 @@ import axios from 'axios';
 import SkipLabelsDropdown from "./SkipLabelsDropdown";
 import { labelFormSchema, settingsSchema, getErrors } from './validationSchemas.js';
 import { FaHeartPulse } from 'react-icons/fa6';
+import { defaultSettings, labelSheetTypes } from './defaultSettings.js';
+import useLocalStorage from './useLocalStorage.js';
 
 
 const LabelForm = () => {
 
-  const labelTypeOptions = [
-    "LCRY-1700", // / RNBW-2200, label size: 33mm x 13mm, 17 rows x 5 cols",
-    "size 1",
-    "size 2",
-    "size 3",
-  ];
-
   const uid = new ShortUniqueId({ length: 5 });
 
+  const [settings] = useLocalStorage('LabelSettings', defaultSettings);
   const [fileReady, setFileReady] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState(
   {
-    labelType: labelTypeOptions[0],
+    labelType: labelSheetTypes[0],
     startLabel: '',
     skipLabels: '',
     labels: [{
@@ -201,34 +197,20 @@ const LabelForm = () => {
 
       e.preventDefault();
 
-      const {
-        hasBorder = false,
-        padding = 1.75,
-        fontSize = 12,
-        fileName = 'labels'
-      } = JSON.parse(localStorage.getItem('settings')) || {};
-
-      const parsedData = labelFormSchema.safeParse(formData);
-      console.log("parsedData", parsedData);
-      if (!parsedData.success) {
-        setErrors(getErrors(parsedData.error));
-        console.log("errors", parsedData.error);
-        return;
-      };
+      
 
       setIsSubmitting(true);
 
-      
 
       const validatedFormData = {
         labels: parsedData.data.labels, //formattedLabels
         'sheet_type': formData.labelType,
         'start_label': formData.startLabel,
         'skip_labels': parsedData.data.skipLabels, // cleanedSkipLabels, 
-        'border': false, //hasBorder,
-        'padding': 1.75, //,
-        'font_size': 12, //fontSize,
-        'file_name': 'labels', //fileName,
+        'border': settings.hasBorder, 
+        'padding': settings.padding,
+        'font_size': settings.fontSize, 
+        'file_name': settings.fileName, 
       };
 
       console.log('formData', validatedFormData);
@@ -277,7 +259,7 @@ const LabelForm = () => {
               value={formData.labelType}
               onChange={handleChange}
             >
-              {labelTypeOptions.map((labelType, i) => <option key={i}>{labelType}</option>)}
+              {labelSheetTypes.map((labelType, i) => <option key={i}>{labelType}</option>)}
             </Input>
           </FormGroup>
           <Row className="row-cols-lg-auto g-3 align-items-end mb-4">
