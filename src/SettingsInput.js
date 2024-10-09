@@ -1,24 +1,28 @@
 import { Input, FormGroup, Label as RSLabel } from 'reactstrap';
+import { Controller } from "react-hook-form";
+import _ from 'lodash';
 
-// not finished
-const SettingsInput = ({ label, register, required, title, type, errorMsg }) => {
+const SettingsInput = ({ label, control, errors, type="text", bsSize="sm", required=false }) => {
   return (
-    <FormGroup check={type === 'checkbox'} className={className}>
-      <RSLabel className={label} for={label}>{title}</RSLabel>
-      <Input
-        id={label}
+    <FormGroup>
+      <RSLabel className={label} for={label}>{_.startCase(label)}</RSLabel>
+      <Controller
+        control={control}
         name={label}
-        type={type}
-        value={settings.padding}
-        onChange={handleChange}
-        min="0"
-        bsSize="sm"
-        className={`${label}-padding-input`}
-        {...register(label, { required })}
+        render={({ field }) => (
+          <Input
+            id={label}
+            type={type}
+            bsSize={bsSize}
+            required={required}
+            className={`label-${label}-input`}
+            {...field} 
+          />
+        )}
       />
-      {errorMsg && <small className="text-danger">{errorMsg}</small>}
+      {errors[label] && <small className="text-danger">{errors[label].message}</small>} 
     </FormGroup>
-    );
+  );
 };
 
 export default SettingsInput;

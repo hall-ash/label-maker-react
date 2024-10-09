@@ -5,50 +5,33 @@ import CalculateAliquotsModal from './CalculateAliquotsModal';
 import { Row, Col, Label as RSLabel, FormGroup, Input, Container, Button } from 'reactstrap';
 import { FaPlusSquare, FaTimes } from 'react-icons/fa';
 import { nonnegativeNumberInputSchema } from './validationSchemas';
+import { Controller } from 'react-hook-form';
 import './Label.css';
 
-function Label({ id, labeltext, labelCount, aliquots, removeLabel, addAliquot, removeAliquot, onChange, setAliquots, displayAliquots }) {
-  const aliquotComponents = aliquots.map(({ id: aliquotId, aliquottext, number }) => (
-    <Aliquot
-      id={aliquotId}
-      key={aliquotId}
-      aliquottext={aliquottext}
-      number={number}
-      remove={() => removeAliquot(id, aliquotId)}
-      onChange={(e) => onChange(e, id, aliquotId)}
-    />
-  ));
-
-  const handleChange = e => onChange(e, id);
-  const handleClick = () => addAliquot(id);
-  const handleCalculateAliquotsClick = (aliquots) => setAliquots(id, aliquots);
-  const handleRemoveLabel = () => removeLabel(id);
+const Label = ({ control, index, removeLabel, addAliquot, removeAliquot, setAliquots, errors, displayAliquots }) => {
+  const handleCalculateAliquotsClick = (aliquots) => setAliquots(index, aliquots);
   const toggleShowAliquots = () => {
-    handleChange({ target: { name: "displayAliquots", checked: !displayAliquots, value: !displayAliquots } });
-  };
-
-  const [errors, setErrors] = useState({ labelcount: '' });
-
-  const handleBlur = () => {
-    const parsedLabelCount = nonnegativeNumberInputSchema.safeParse(labelCount);
-
-    setErrors(prev => ({ ...prev, labelcount: parsedLabelCount.error }));
+    control.setValue(`labels[${index}].displayAliquots`, !displayAliquots);
   };
 
   return (
     <Container className="label-container">
       <div className="remove-label-icon">
-        <FaTimes onClick={handleRemoveLabel} />
+        <FaTimes onClick={() => removeLabel(index)} />
       </div>
       <Row className="mt-1">
         <FormGroup className="w-100">
-          <RSLabel for="labeltext" className="label-title">Label Text</RSLabel>
-          <Input
-            id="labeltext"
-            name="labeltext"
-            type="textarea"
-            value={labeltext}
-            onChange={handleChange}
+          <RSLabel for={`labels[${index}].labeltext`} className="label-title">Label Text</RSLabel>
+          <Controller
+            name={`labels[${index}].labeltext`}
+            control={control}
+            render={({ field }) => (
+              <Input
+                id={`labels[${index}].labeltext`}
+                type="textarea"
+                {...field}
+              />
+            )}
           />
         </FormGroup>
       </Row>
@@ -56,19 +39,22 @@ function Label({ id, labeltext, labelCount, aliquots, removeLabel, addAliquot, r
         {!displayAliquots && (
           <Col xs="4">
             <FormGroup className="label-count-container">
-              <RSLabel className="label-count" for="labelcount">Label Count</RSLabel>
-              <Input
-                id="labelcount"
-                name="labelcount"
-                type="number"
-                value={labelCount}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                min="0"
-                bsSize="sm"
-                className="label-count-input"
+              <RSLabel className="label-count" for={`labels[${index}].labelcount`}>Label Count</RSLabel>
+              <Controller
+                name={`labels[${index}].labelcount`}
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    id={`labels[${index}].labelcount`}
+                    type="number"
+                    {...field}
+                    min="0"
+                    bsSize="sm"
+                    className="label-count-input"
+                  />
+                )}
               />
-              {errors.labelcount && <small className="text-danger">{errors.labelcount}</small>}
+              {errors?.labels?.[index]?.labelcount && <small className="text-danger">{errors.labels[index].labelcount.message}</small>}
             </FormGroup>
           </Col>
         )}
@@ -89,17 +75,29 @@ function Label({ id, labeltext, labelCount, aliquots, removeLabel, addAliquot, r
             </Col>
           </Row>
           <div className="aliquots-container">
-            <div className="aliquots-column">
-              {aliquotComponents}
-            </div>
-            <div className="add-aliquot-btn-column">
-              <FaPlusSquare className="add-aliquot-btn" onClick={handleClick} style={{ cursor: 'pointer' }} />
-            </div>
+            <Controller
+              name={`labels[${index}].aliquots`}
+              control={control}
+              render={({ field }) =>
+                field.value.map((aliquot, aliquotIndex) => (
+                  <Aliquot
+                    key={aliquot.id}
+                    control={control}
+                    labelIndex={index}
+                    aliquotIndex={aliquotIndex}
+                    remove={() => removeAliquot(index, aliquotIndex)}
+                    errors={errors?.labels?.[index]?.aliquots?.[aliquotIndex]}
+                  />
+                ))
+              }
+            />
+            <FaPlusSquare className="add-aliquot-btn" onClick={() => addAliquot(index)} style={{ cursor: 'pointer' }} />
           </div>
         </div>
       )}
     </Container>
   );
-}
+};
+
 
 export default Label;
