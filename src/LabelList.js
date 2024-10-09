@@ -3,7 +3,7 @@ import React from "react";
 import Label from "./Label";
 import { Button } from 'reactstrap';
 
-function LabelList ({ labels, addLabel, removeLabel, addAliquot, removeAliquot, onChange, setLabelAliquots }) {
+function LabelList ({ labels, addLabel, removeLabel, addAliquot, removeAliquot, onChange, setLabelAliquots, labelListErrors }) {
   
   // const labelComponents = labels.map(({ id, labeltext, aliquots, labelcount, displayAliquots }) => (
   //   <Label 
@@ -28,7 +28,11 @@ function LabelList ({ labels, addLabel, removeLabel, addAliquot, removeAliquot, 
   //   </div>
   // );
 
-  const labelComponents = labels.map(({ id, labeltext, aliquots, labelcount, displayAliquots }) => (
+  const labelComponents = labels.map(({ id, labeltext, aliquots, labelcount, displayAliquots }, idx) => {
+    
+    const error = labelListErrors.idx === idx ? labelListErrors; 
+    return (
+    
     <div key={id}>
       <Label 
         id={id}
@@ -41,9 +45,12 @@ function LabelList ({ labels, addLabel, removeLabel, addAliquot, removeAliquot, 
         onChange={onChange}
         setAliquots={setLabelAliquots}
         displayAliquots={displayAliquots}
+        labelErrors={labelListErrors[idx]}
       />
     </div>
-  ));
+      )
+    }
+  );
 
   return (
     <div className="label-list-container">

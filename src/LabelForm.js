@@ -7,8 +7,7 @@ import { Form, Button, FormGroup, Label as RSLabel, Input, Row, Col } from 'reac
 import ShortUniqueId from 'short-unique-id';
 import axios from 'axios';
 import SkipLabelsDropdown from "./SkipLabelsDropdown";
-import { labelFormSchema, settingsSchema, getErrors } from './validationSchemas.js';
-import { FaHeartPulse } from 'react-icons/fa6';
+import { labelFormSchema, getLabelListErrors, labelsSchema, settingsSchema, getErrors } from './validationSchemas.js';
 import { defaultSettings, labelSheetTypes } from './defaultSettings.js';
 import useLocalStorage from './useLocalStorage.js';
 
@@ -18,7 +17,7 @@ const LabelForm = () => {
   const uid = new ShortUniqueId({ length: 5 });
 
   const [settings] = useLocalStorage('LabelSettings', defaultSettings);
-  const [fileReady, setFileReady] = useState(true);
+  const [waitingForApi, setWaitingForApi] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState(
@@ -34,6 +33,11 @@ const LabelForm = () => {
       aliquots: Array.from({ length: 1 }, () => ({ id: uid.rnd(), aliquottext: '', number: '' })),
     }],
   });
+
+  const [labelListErrors, setLabelListErrors] = useState([]);
+  const handleLabelListErrors = (labelListErrors) => {
+    setLabelListErrors(labelListErrors);
+  }
 
   const [transformedData, setTransformedData] = useState({
     transformedLabels: '',
@@ -173,8 +177,6 @@ const LabelForm = () => {
     }));
   };
 
-
-
   const setLabelAliquots = (labelId, aliquots) => {
 
     const calculatedAliquots = aliquots.map(aliquot => ({...aliquot, id: uid.rnd() }));
@@ -192,62 +194,89 @@ const LabelForm = () => {
 
   const handleSubmit = async (e) => {
 
-
     try {
 
       e.preventDefault();
 
-      
-
       setIsSubmitting(true);
 
+      const parsedData = labelFormSchema.safeParse(formData);
 
-      const validatedFormData = {
-        labels: parsedData.data.labels, //formattedLabels
-        'sheet_type': formData.labelType,
-        'start_label': formData.startLabel,
-        'skip_labels': parsedData.data.skipLabels, // cleanedSkipLabels, 
-        'border': settings.hasBorder, 
-        'padding': settings.padding,
-        'font_size': settings.fontSize, 
-        'file_name': settings.fileName, 
-      };
+      
+      if (!parsedData.success) {
+        const issues = parsedData.error?.issues;
 
-      console.log('formData', validatedFormData);
+        const newErrors = issues.reduce((acc, { path, message }) => {
+          const field = path[0];
+          const subPath = path.slice(1);
+          const subError = subPath.length > 0 ? { idx: subPath[0], 'path': subPath.slice(1), message } : message;
+          if (subPath.length > 0) {
+            const fieldList = `${field}List`
+            acc[fieldList] ? acc[fieldList].push(subError) : (acc[fieldList] = [subError]);
+          } else {
+            acc[field] = message;
+          }
+          return acc;
+        }, {});
 
-      setFileReady(false);
+        setErrors(newErrors);
+      } else {
+        const validatedFormData = {
+          'labels': parsedData.data.labels, //formattedLabels
+          'sheet_type': formData.labelType,
+          'start_label': formData.startLabel,
+          'skip_labels': parsedData.data.skipLabels, // cleanedSkipLabels, 
+          'border': settings.hasBorder, 
+          'padding': settings.padding,
+          'font_size': settings.fontSize, 
+          'file_name': settings.fileName, 
+        };
+  
+        console.log('formData', validatedFormData);
+  
+        const atWork = true;
+        const api = atWork ? 'http://192.168.134.118:5000/api/generate_pdf' : 'http://192.168.4.112:5000/api/generate_pdf';
+        
+        setWaitingForApi(true);
+        const response = await axios.post(api, validatedFormData, {
+          responseType: 'blob', // Important for handling binary data
+          timeout: 10000, // timeout after 10 seconds
+        });
+  
+        // Create a blob from the response
+        const blob = new Blob([response.data], { type: 'application/pdf' });
+  
+        // Create a URL for the blob
+        const url = window.URL.createObjectURL(blob);
+  
+        // Set the download link and open the modal
+        setDownloadLink(url);
+        setIsModalOpen(true);
+  
+       
 
-      const atWork = true;
-      const api = atWork ? 'http://192.168.134.118:5000/api/generate_pdf' : 'http://192.168.4.112:5000/api/generate_pdf';
-      const response = await axios.post(api, validatedFormData, {
-        responseType: 'blob', // Important for handling binary data
-        timeout: 10000, // timeout after 10 seconds
-      });
-
-      // Create a blob from the response
-      const blob = new Blob([response.data], { type: 'application/pdf' });
-
-      // Create a URL for the blob
-      const url = window.URL.createObjectURL(blob);
-
-      setFileReady(true);
-      // Set the download link and open the modal
-      setDownloadLink(url);
-      setIsModalOpen(true);
-
-      setIsSubmitting(false);
+      }
+      
     } catch (error) {
       if (error.code === 'ECONNABORTED') {
         console.error('Request timed out');
         // add code to display error to user here
       }
       console.error('Error downloading the file:', error);
+    } finally {
+      setIsSubmitting(false);
+      setWaitingForApi(false);
     }
     
   };
 
   return (
-    fileReady ?
+    waitingForApi ? 
+    (
+      <div className="loading-container">
+      <LoadingSpinner/>
+      </div>
+    ) :
     (<div className="label-form-container">
         <Form onSubmit={handleSubmit}>
           <FormGroup className="mb-3">
@@ -293,6 +322,7 @@ const LabelForm = () => {
             removeAliquot={removeAliquot}
             onChange={handleChange}
             setLabelAliquots={setLabelAliquots}
+            labelListErrors={errors.labelsList}
           />
           {errors.labels && <small className="text-danger">{errors.labels}</small>}
           <div className="form-submit-container">
@@ -302,11 +332,6 @@ const LabelForm = () => {
         <DownloadModal isOpen={isModalOpen} toggle={handleModalToggle} downloadLink={downloadLink} />
      
     </div>)
-    : (
-    <div className="loading-container">
-    <LoadingSpinner/>
-    </div>
-    )
   );
 
 }

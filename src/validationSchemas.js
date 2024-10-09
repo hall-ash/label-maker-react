@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import DOMPurify from 'dompurify';
 import filenamify from 'filenamify/browser';
+import { MdProductionQuantityLimits } from 'react-icons/md';
 
 // const startLabelSchema = z.optional(z.string().regex(/^[a-zA-Z]\d{1,2}$/, {
 //   message: "Invalid label coordinates",
@@ -52,20 +53,18 @@ const numberInputSchema = z.string()
   .refine(number => !isNaN(number) && isFinite(number), { message: 'Enter a number' }); 
 
 const nonnegativeNumberInputSchema = numberInputSchema.refine(number => number >= 0, { message: 'Enter a number greater than or equal to 0' });
-const labelOrAliquotQuantitySchema = z.string().refine(input => input === "").or(nonnegativeNumberInputSchema)
+
+const quantitySchema = z.coerce.number({ invalid_type_error: "Quantity must be a number", })
+                       .nonnegative({ message: 'Quantity can\'t be negative' });
 
 const aliquotSchema = z.object({
   aliquottext: z.string(),
-  //number: labelOrAliquotQuantitySchema,
-  number: z.number({ invalid_type_error: "Number of aliquots must be a valid number", })
-           .nonnegative({ message: 'Number can\'t be negative', })
+  number: quantitySchema,
 });
 
 const labelSchema = z.object({
   labeltext: z.string(),
-  //labelcount: labelOrAliquotQuantitySchema,
-  labelcount: z.number({ invalid_type_error: "Number of labels must be a valid number", })
-               .nonnegative({ message: 'Number can\'t be negative', }),
+  labelcount: quantitySchema,
   displayAliquots: z.boolean(),
   aliquots: z.array(aliquotSchema),
 });
@@ -86,12 +85,6 @@ const labelsSchema = z
   )
   .refine(labels => labels.length > 0, { message: "Add a label to print" });
 
-// const settingsSchema = z.object({
-//   hasBorder: z.boolean(),
-//   fontSize: z.string().refine(num => Number(num) > 0 && Number(num) <= 100 , { message: 'Font size must be between 1 and 100 inclusive' }).or(z.number().refine(num => num > 0 && num <= 100), { message: 'Font size must be between 1 and 100 inclusive' }),//z.string().refine(input => input === "").or(numberInputSchema.refine(number => number > 0 && number <= 100, { message: 'Font size must be between 1 and 100 inclusive' })).or(z.number().refine(num => num > 0 && num <= 100)), 
-//   padding: z.string().refine(num => Number(num) >= 0 && Number(num) <= 10 , { message: 'Padding must be between 0 and 10 inclusive' }).or(z.number().refine(num => num >= 0 && num <= 10), { message: 'Padding must be between 0 and 10 inclusive' }), //z.string().refine(input => input === "").or(numberInputSchema.refine(number => number >= 0 && number <= 10, { message: 'Padding must be between 0 and 10 inclusive' })).or(z.number().refine(num => num >= 0 && num <= 10)), 
-//   fileName: z.string().transform(input => filenamify(DOMPurify.sanitize(input))), 
-// });
 
 const settingsSchema = z.object({
   hasBorder: z.boolean(),
@@ -131,6 +124,22 @@ const labelFormSchema = z.object({
   skipLabels: z.optional(skipLabelsSchema), 
 });
 
+const getLabelListErrors = (issues) => {
+  
+  return issues
+    .filter(({ path }) => path[0] === 'labels' && path.length > 1)
+    .reduce((labelListErrors, { path, message }) => {
+      const labelIndex = path[1];
+      const subError = {
+        'path': path.slice(1),
+        message,
+      };
+      return labelListErrors[labelIndex] ? labelListErrors[labelIndex].push(subError) : (labelListErrors[labelIndex] = [subError]);
+      
+    }, []);
+};
+
+
 const getErrors = parsedDataError => {
    // Check if there are any issues and reduce them to an object with error messages
   return parsedDataError?.issues?.reduce((msgs, issue) => {
@@ -143,7 +152,7 @@ const getErrors = parsedDataError => {
 };
 
 
-export { settingsSchema, labelFormSchema, calculateAliquotsModalSchema, labelSchema, nonnegativeNumberInputSchema, getErrors };
+export { getLabelListErrors, settingsSchema, labelFormSchema, calculateAliquotsModalSchema, labelSchema, nonnegativeNumberInputSchema, aliquotSchema, getErrors };
 
 
 

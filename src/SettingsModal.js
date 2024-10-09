@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import useLocalStorage from './useLocalStorage.js';
 import _ from 'lodash';
 import { defaultSettings } from './defaultSettings.js';
+import SettingsInput from './SettingsInput';
 
 const SettingsModal = ({ isOpen, toggle }) => {
 
@@ -14,6 +15,7 @@ const SettingsModal = ({ isOpen, toggle }) => {
   const { control, handleSubmit, formState: { errors, isSubmitting }, setValue, clearErrors } = useForm({
     defaultValues: settings,
     resolver: zodResolver(settingsSchema),
+    mode: 'onTouched',
   });
 
   const onSubmit = (data) => {
@@ -42,46 +44,16 @@ const SettingsModal = ({ isOpen, toggle }) => {
     <Modal isOpen={isOpen} toggle={handleCancel}>
       <ModalHeader toggle={toggle}>Label Settings</ModalHeader>
       <ModalBody>
-        <FormGroup>
-          <RSLabel className="padding" for="padding">Padding</RSLabel>
-          <Controller
-            control={control}
-            name="padding"
-       
-            render={({ field }) => (
-              <Input
-                id="padding"
-                type="text"
-                bsSize="sm"
-                className="label-padding-input"
-                onChange={(e) => {
-                  field.onChange(e.target.value);
-                }}
-                {...field}
-              />
-            )}
-          />
-          {errors.padding && <small className="text-danger">{errors.padding.message}</small>}
-        </FormGroup>
-
-        <FormGroup>
-          <RSLabel className="fontSize" for="fontSize">Font Size</RSLabel>
-          <Controller
-            control={control}
-            name="fontSize"
-            render={({ field }) => (
-              <Input
-                id="fontSize"
-                type="text"
-                bsSize="sm"
-                className="label-font-size-input"
-                {...field}
-              />
-            )}
-          />
-          {errors.fontSize && <small className="text-danger">{errors.fontSize.message}</small>}
-        </FormGroup>
-
+        <SettingsInput 
+          label="padding"
+          control={control}
+          errors={errors}
+        />
+         <SettingsInput 
+          label="fontSize"
+          control={control}
+          errors={errors}
+        />
         <FormGroup check className="d-flex align-items-center form-check-group">
           <Controller
             control={control}
@@ -132,4 +104,5 @@ const SettingsModal = ({ isOpen, toggle }) => {
 };
 
 export default SettingsModal;
+
 

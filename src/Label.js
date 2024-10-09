@@ -7,7 +7,7 @@ import { FaPlusSquare, FaTimes } from 'react-icons/fa';
 import { nonnegativeNumberInputSchema } from './validationSchemas';
 import './Label.css';
 
-function Label({ id, labeltext, labelCount, aliquots, removeLabel, addAliquot, removeAliquot, onChange, setAliquots, displayAliquots }) {
+function Label({ id, labeltext, labelCount, aliquots, removeLabel, addAliquot, removeAliquot, onChange, setAliquots, displayAliquots, labelErrors }) {
   const aliquotComponents = aliquots.map(({ id: aliquotId, aliquottext, number }) => (
     <Aliquot
       id={aliquotId}
@@ -16,6 +16,7 @@ function Label({ id, labeltext, labelCount, aliquots, removeLabel, addAliquot, r
       number={number}
       remove={() => removeAliquot(id, aliquotId)}
       onChange={(e) => onChange(e, id, aliquotId)}
+      error={labelErrors.aliquots[aliquotId]}
     />
   ));
 
@@ -27,13 +28,13 @@ function Label({ id, labeltext, labelCount, aliquots, removeLabel, addAliquot, r
     handleChange({ target: { name: "displayAliquots", checked: !displayAliquots, value: !displayAliquots } });
   };
 
-  const [errors, setErrors] = useState({ labelcount: '' });
+  // const [errors, setErrors] = useState({ labelcount: '' });
 
-  const handleBlur = () => {
-    const parsedLabelCount = nonnegativeNumberInputSchema.safeParse(labelCount);
+  // const handleBlur = () => {
+  //   const parsedLabelCount = nonnegativeNumberInputSchema.safeParse(labelCount);
 
-    setErrors(prev => ({ ...prev, labelcount: parsedLabelCount.error }));
-  };
+  //   setErrors(prev => ({ ...prev, labelcount: parsedLabelCount.error }));
+  // };
 
   return (
     <Container className="label-container">
@@ -60,15 +61,13 @@ function Label({ id, labeltext, labelCount, aliquots, removeLabel, addAliquot, r
               <Input
                 id="labelcount"
                 name="labelcount"
-                type="number"
+                type="text"
                 value={labelCount}
                 onChange={handleChange}
-                onBlur={handleBlur}
-                min="0"
                 bsSize="sm"
                 className="label-count-input"
               />
-              {errors.labelcount && <small className="text-danger">{errors.labelcount}</small>}
+              {labelErrors.labelcount && <small className="text-danger">{labelErrors.labelcount}</small>}
             </FormGroup>
           </Col>
         )}

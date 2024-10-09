@@ -2,16 +2,15 @@ import React, { useState } from "react";
 import { Input, InputGroup, FormFeedback } from 'reactstrap';
 import { FaTrash } from 'react-icons/fa';
 import './Aliquot.css';
-import { nonnegativeNumberInputSchema } from './validationSchemas';
 
-function Aliquot({ aliquottext, number, remove, onChange }) {
-  const [errors, setErrors] = useState({ number: '' });
+function Aliquot({ aliquottext, number, remove, onChange, errors }) {
+  // const [errors, setErrors] = useState({ number: '' });
   const handleChange = e => onChange(e);
 
-  const handleBlur = () => {
-    const parsedAliquotNumber = nonnegativeNumberInputSchema.safeParse(number);
-    setErrors(prev => ({ ...prev, number: parsedAliquotNumber.number }));
-  };
+  // const handleBlur = () => {
+  //   const parsedAliquotNumber = aliquotSchema.safeParse(number);
+  //   setErrors(prev => ({ ...prev, number: parsedAliquotNumber.number }));
+  // };
 
   return (
     <div className="aliquot-input-container">
@@ -39,7 +38,6 @@ function Aliquot({ aliquottext, number, remove, onChange }) {
             bsSize="sm"
             className="aliquot-number-input"
             onChange={handleChange}
-            onBlur={handleBlur}
             invalid={errors.number}
           />
           <FormFeedback>
