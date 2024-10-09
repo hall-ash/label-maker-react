@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import useLocalStorage from './useLocalStorage.js';
 import _ from 'lodash';
 import { defaultSettings } from './defaultSettings.js';
-import SettingsInput from './SettingsInput';
+import ReactHookFormInput from './ReactHookFormInput';
 
 const SettingsModal = ({ isOpen, toggle }) => {
 

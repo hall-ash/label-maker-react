@@ -2,7 +2,7 @@ import { Input, FormGroup, Label as RSLabel } from 'reactstrap';
 import { Controller } from "react-hook-form";
 import _ from 'lodash';
 
-const SettingsInput = ({ label, control, errors, type="text", bsSize="sm", required=false }) => {
+const ReactHookFormInput = ({ label, control, errors, type="text", bsSize="sm", required=false }) => {
   return (
     <FormGroup>
       <RSLabel className={label} for={label}>{_.startCase(label)}</RSLabel>
@@ -25,4 +25,4 @@ const SettingsInput = ({ label, control, errors, type="text", bsSize="sm", requi
   );
 };
 
-export default SettingsInput;
+export default ReactHookFormInput;
