@@ -297,8 +297,8 @@ const LabelForm = () => {
             onChange={handleChange}
             setLabelAliquots={setLabelAliquots}
           />
-          {errors?.labels && <small className="text-danger">{errors.labels._errors}</small>}
           <div className="form-submit-container">
+            {errors?.labels && <small className="text-danger">{errors.labels._errors}</small>}
             <Button color="primary" type="submit" disabled={isSubmitting}>Create Labels</Button>
           </div>
         </Form>
