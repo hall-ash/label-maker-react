@@ -5,7 +5,9 @@ import { quantitySchema } from "./validationSchemas";
 import './Aliquot.css';
 
 const Aliquot = ({ aliquottext, number, remove, onChange }) => {
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({
+    number: '',
+  });
   const handleChange = e => {  
     const { name, value } = e.target;
     onChange(e);
@@ -17,7 +19,7 @@ const Aliquot = ({ aliquottext, number, remove, onChange }) => {
         const errorMsg = parsedAliquotNumber.error.errors[0].message;
         setErrors(prev => ({ ...prev, number: errorMsg }));
       } else {
-        setErrors(prev => ({ ...prev, number: null }));
+        setErrors(prev => ({ ...prev, number: '' }));
       }
     }
   };
@@ -40,11 +42,9 @@ const Aliquot = ({ aliquottext, number, remove, onChange }) => {
           <Input
             id="number"
             name="number"
-            type="number"
+            type="text"
             placeholder="number"
             value={number}
-            step="1"
-            min="0"
             bsSize="sm"
             className="aliquot-number-input"
             onChange={handleChange}

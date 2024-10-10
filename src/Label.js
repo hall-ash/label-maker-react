@@ -28,7 +28,9 @@ const Label = ({ id, labeltext, labelCount, aliquots, removeLabel, addAliquot, r
     handleChange({ target: { name: "displayAliquots", checked: !displayAliquots, value: !displayAliquots } });
   };
 
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({
+    labelCount: '',
+  });
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -47,6 +49,7 @@ const Label = ({ id, labeltext, labelCount, aliquots, removeLabel, addAliquot, r
         setErrors(prev => ({ ...prev, labelCount: "" }));
       }
     }
+
   };
 
   return (
@@ -80,7 +83,7 @@ const Label = ({ id, labeltext, labelCount, aliquots, removeLabel, addAliquot, r
            
                 bsSize="sm"
                 className="label-count-input"
-                invalid={errors.labelCount !== ""}
+                invalid={errors.labelCount}
               />
                <FormFeedback>
                 {errors.labelCount}
