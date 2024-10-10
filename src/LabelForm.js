@@ -11,7 +11,7 @@ import { labelFormSchema } from './validationSchemas';
 import { defaultSettings, labelSheetTypes } from './defaultSettings';
 import useLocalStorage from './useLocalStorage';
 
-// find out where labelcount error is being triggered
+
 const LabelForm = () => {
 
   const uid = new ShortUniqueId({ length: 5 });
