@@ -15,7 +15,7 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
 
   // const [formData, setFormData] = useState();
 
-  const { control, handleSubmit, formState: { errors, isSubmitting }, setValue, clearErrors } = useForm({
+  const { control, handleSubmit, formState: { errors, isSubmitting }, reset, clearErrors } = useForm({
     defaultValues: {
       'concentration': '',
       'volume': '',
@@ -57,6 +57,11 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
 
   const toggle = () => setModal(!modal);
 
+  const handleCancel = () => {
+    toggle();
+    reset();
+  }
+
 
   // const handleInputChange = e => {
   //   const { name, value } = e.target;
@@ -88,10 +93,9 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
         Calculate Aliquots
       </Button>
       <Modal isOpen={modal} toggle={toggle} >
-        <ModalHeader toggle={toggle}>Calculate Aliquots</ModalHeader>
+        <ModalHeader toggle={handleCancel}>Calculate Aliquots</ModalHeader>
         <ModalBody>
           <Form>
-  
             <Row>
               <Col>
                 <RSLabel for="concentration">Concentration</RSLabel>
@@ -147,7 +151,7 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
           <Button color="primary" onClick={handleSubmit(onSubmit)} disabled={isSubmitting}>
             Calculate
           </Button>{' '}
-          <Button color="secondary" onClick={toggle}>
+          <Button color="secondary" onClick={handleCancel}>
             Cancel
           </Button>
         </ModalFooter>
