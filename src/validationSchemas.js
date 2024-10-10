@@ -116,10 +116,19 @@ const amountsSchema = z
 
 
 const calculateAliquotsModalSchema = z.object({
-  'concentration': z.string().trim().min(1, { message: "Enter a concentration" }).or(z.coerce.number({ invalid_type_error: "Concentration must be a number", })
-                    .positive({ message: 'Concentration must be greater than 0' })),
-  'volume': z.string().trim().min(1, { message: "Enter a volume" }).or(z.coerce.number({ invalid_type_error: "Volume must be a number", })
-             .positive({ message: 'Volume must be greater than 0' })),
+  'concentration': z.string()
+  .min(1, { message: "Enter a concentration" })  // Ensure it's not an empty string
+  .transform((val) => val.trim())         // Optionally, trim whitespace
+  .pipe(z.coerce.number({
+    invalid_type_error: "Concentration must be a number",
+  }).positive({ message: 'Concentration must be greater than 0' })),
+  'volume': z.string()
+  .min(1, { message: "Enter a volume" })  // Ensure it's not an empty string
+  .transform((val) => val.trim())         // Optionally, trim whitespace
+  .pipe(z.coerce.number({
+    invalid_type_error: "Volume must be a number",
+  }).positive({ message: 'Volume must be greater than 0' })),
+
   'amounts': amountsSchema,
 });
 
