@@ -12,7 +12,7 @@ const SettingsModal = ({ isOpen, toggle }) => {
 
   const [settings, setSettings] = useLocalStorage('LabelSettings', defaultSettings);
 
-  const { control, handleSubmit, formState: { errors, isSubmitting }, setValue, clearErrors } = useForm({
+  const { control, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm({
     defaultValues: settings,
     resolver: zodResolver(settingsSchema),
     mode: 'onTouched',
@@ -31,12 +31,13 @@ const SettingsModal = ({ isOpen, toggle }) => {
     toggle(); // close modal
   
     // reset any changed settings
-    Object.keys(settings).forEach(field => {
-      setValue(field, settings[field]);
-    });
+    // Object.keys(settings).forEach(field => {
+    //   setValue(field, settings[field]);
+    // });
     
     // clear any errors 
-    clearErrors();
+    //clearErrors();
+    reset();
   };
 
 
