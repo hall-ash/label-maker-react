@@ -9,7 +9,7 @@ const DownloadModal = ({ isOpen, toggle, downloadLink }) => {
         <Button color="primary" onClick={() => {
           const link = document.createElement('a');
           link.href = downloadLink;
-          link.download = 'demo.pdf';
+          link.download = 'labels.pdf';
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
