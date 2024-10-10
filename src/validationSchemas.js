@@ -24,6 +24,9 @@ const startLabelSchema = z.string()
                 }, { message: 'Invalid label coordinates' }
               );
 
+
+// only allow valid values for dimensions of label sheet
+// e.g., if num rows = 17; don't allow user to input a18,..., e18
 const skipLabelsSchema = z
   .string()
   .transform((skips) => {
@@ -53,9 +56,10 @@ const numberInputSchema = z.string()
 
 const nonnegativeNumberInputSchema = numberInputSchema.refine(number => number >= 0, { message: 'Enter a number greater than or equal to 0' });
 
-const quantitySchema = z.string().refine(val => val === "").or(z.coerce.number({ invalid_type_error: "Quantity must be a number", })
+const quantitySchema = z.coerce.number({ invalid_type_error: "Quantity must be a number", })
                        .nonnegative({ message: 'Quantity can\'t be negative' })
-                       .lte(100, { message: 'Max quantity is 100' }));
+                       .lte(100, { message: 'Max quantity is 100' })
+                       .int({ message: 'Quantity must be an integer' });
 
 const aliquotSchema = z.object({
   aliquottext: z.string(),
