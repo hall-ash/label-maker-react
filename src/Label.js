@@ -2,12 +2,13 @@ import './Label.css';
 import React, { useState } from "react";
 import Aliquot from "./Aliquot";
 import CalculateAliquotsModal from './CalculateAliquotsModal';
-import { Row, Col, Label as RSLabel, FormGroup, Input, Container, Button } from 'reactstrap';
+import { Row, Col, FormFeedback, Label as RSLabel, FormGroup, Input, Container, Button } from 'reactstrap';
 import { FaPlusSquare, FaTimes } from 'react-icons/fa';
-import { nonnegativeNumberInputSchema } from './validationSchemas';
+import { labelSchema, quantitySchema, getErrors } from './validationSchemas';
 import './Label.css';
 
-function Label({ id, labeltext, labelCount, aliquots, removeLabel, addAliquot, removeAliquot, onChange, setAliquots, displayAliquots, labelErrors }) {
+
+const Label = ({ id, labeltext, labelCount, aliquots, removeLabel, addAliquot, removeAliquot, onChange, setAliquots, displayAliquots }) => {
   const aliquotComponents = aliquots.map(({ id: aliquotId, aliquottext, number }) => (
     <Aliquot
       id={aliquotId}
@@ -16,11 +17,10 @@ function Label({ id, labeltext, labelCount, aliquots, removeLabel, addAliquot, r
       number={number}
       remove={() => removeAliquot(id, aliquotId)}
       onChange={(e) => onChange(e, id, aliquotId)}
-      error={labelErrors.aliquots[aliquotId]}
     />
   ));
 
-  const handleChange = e => onChange(e, id);
+  //const handleChange = e => onChange(e, id);
   const handleClick = () => addAliquot(id);
   const handleCalculateAliquotsClick = (aliquots) => setAliquots(id, aliquots);
   const handleRemoveLabel = () => removeLabel(id);
@@ -28,13 +28,26 @@ function Label({ id, labeltext, labelCount, aliquots, removeLabel, addAliquot, r
     handleChange({ target: { name: "displayAliquots", checked: !displayAliquots, value: !displayAliquots } });
   };
 
-  // const [errors, setErrors] = useState({ labelcount: '' });
+  const [errors, setErrors] = useState({});
 
-  // const handleBlur = () => {
-  //   const parsedLabelCount = nonnegativeNumberInputSchema.safeParse(labelCount);
+  const handleChange = e => {
+    const { name, value } = e.target;
 
-  //   setErrors(prev => ({ ...prev, labelcount: parsedLabelCount.error }));
-  // };
+    // Call the parent onChange to update the state in the parent
+    onChange(e, id);
+
+    // Validate the labelCount field
+    if (name === "labelcount") {
+      const parsedLabelCount = quantitySchema.safeParse(value);
+
+      if (!parsedLabelCount.success) {
+        const errorMsg = parsedLabelCount.error.errors[0].message;
+        setErrors(prev => ({ ...prev, labelCount: errorMsg }));
+      } else {
+        setErrors(prev => ({ ...prev, labelCount: "" }));
+      }
+    }
+  };
 
   return (
     <Container className="label-container">
@@ -64,10 +77,14 @@ function Label({ id, labeltext, labelCount, aliquots, removeLabel, addAliquot, r
                 type="text"
                 value={labelCount}
                 onChange={handleChange}
+           
                 bsSize="sm"
                 className="label-count-input"
+                invalid={errors.labelCount !== ""}
               />
-              {labelErrors.labelcount && <small className="text-danger">{labelErrors.labelcount}</small>}
+               <FormFeedback>
+                {errors.labelCount}
+              </FormFeedback>
             </FormGroup>
           </Col>
         )}

@@ -7,9 +7,10 @@ import {
   FormGroup,
   Label as RSLabel,
   Input,
+  FormFeedback
 } from 'reactstrap';
 
-const SkipLabelsDropdown = ({ skipLabelsErrorMsg, skipLabelsValue, onChange }) => {
+const SkipLabelsDropdown = ({ skipLabelsValue, onChange, errors }) => {
   const [open, setOpen] = useState('0');
   const toggle = id => {
     if (open === id) {
@@ -39,10 +40,12 @@ const SkipLabelsDropdown = ({ skipLabelsErrorMsg, skipLabelsValue, onChange }) =
                 placeholder={`1: A1-D4, E17${String.fromCharCode(10)}2: B2-D5`}
                 value={skipLabelsValue}
                 onChange={handleChange}
-         
+                invalid={errors}
                 className="form-textarea"
               />
-              {skipLabelsErrorMsg && <small className="text-danger">{skipLabelsErrorMsg}</small>}
+              <FormFeedback>
+                {errors?._errors}
+              </FormFeedback>
             
           </AccordionBody>
         </AccordionItem>

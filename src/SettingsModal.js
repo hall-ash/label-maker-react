@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, InputGroup, InputGroupText, FormGroup, Label as RSLabel } from 'reactstrap';
+import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, InputGroup, InputGroupText, FormGroup, Label as RSLabel, FormFeedback } from 'reactstrap';
 import { settingsSchema } from './validationSchemas.js';
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -44,16 +44,23 @@ const SettingsModal = ({ isOpen, toggle }) => {
     <Modal isOpen={isOpen} toggle={handleCancel}>
       <ModalHeader toggle={toggle}>Label Settings</ModalHeader>
       <ModalBody>
-        <SettingsInput 
-          label="padding"
-          control={control}
-          errors={errors}
-        />
-         <SettingsInput 
+        <FormGroup>
+          <RSLabel for="padding">Padding</RSLabel>
+          <ReactHookFormInput 
+            label="padding"
+            control={control}
+            errors={errors}
+          />
+        </FormGroup>
+       <FormGroup>
+       <RSLabel for="hasBorder">Font Size</RSLabel>
+        <ReactHookFormInput 
           label="fontSize"
           control={control}
           errors={errors}
         />
+       </FormGroup>
+       
         <FormGroup check className="d-flex align-items-center form-check-group">
           <Controller
             control={control}
@@ -67,7 +74,7 @@ const SettingsModal = ({ isOpen, toggle }) => {
               />
             )}
           />
-          <RSLabel htmlFor="border" check className="form-check-label ms-2">
+          <RSLabel for="border" check className="form-check-label ms-2">
             Add Border
           </RSLabel>
         </FormGroup>
@@ -83,13 +90,17 @@ const SettingsModal = ({ isOpen, toggle }) => {
                   id="fileName"
                   type="text"
                   bsSize="sm"
+                  invalid={errors.fileName}
                   {...field}
                 />
               )}
             />
             <InputGroupText>.pdf</InputGroupText>
+            <FormFeedback>
+              {errors.fileName}
+            </FormFeedback>
           </InputGroup>
-          {errors.fileName && <small className="text-danger">{errors.fileName.message}</small>}
+         
         </FormGroup>
       </ModalBody>
 

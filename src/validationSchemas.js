@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import DOMPurify from 'dompurify';
 import filenamify from 'filenamify/browser';
-import { MdProductionQuantityLimits } from 'react-icons/md';
 
 // const startLabelSchema = z.optional(z.string().regex(/^[a-zA-Z]\d{1,2}$/, {
 //   message: "Invalid label coordinates",
@@ -54,8 +53,9 @@ const numberInputSchema = z.string()
 
 const nonnegativeNumberInputSchema = numberInputSchema.refine(number => number >= 0, { message: 'Enter a number greater than or equal to 0' });
 
-const quantitySchema = z.coerce.number({ invalid_type_error: "Quantity must be a number", })
-                       .nonnegative({ message: 'Quantity can\'t be negative' });
+const quantitySchema = z.string().refine(val => val === "").or(z.coerce.number({ invalid_type_error: "Quantity must be a number", })
+                       .nonnegative({ message: 'Quantity can\'t be negative' })
+                       .lte(100, { message: 'Max quantity is 100' }));
 
 const aliquotSchema = z.object({
   aliquottext: z.string(),
@@ -90,10 +90,10 @@ const settingsSchema = z.object({
   hasBorder: z.boolean(),
   fontSize: z.coerce.number({ invalid_type_error: "Font size must be a number", })
              .positive({ message: 'Font size must be greater than 0' })
-             .lte(100, { message: 'Font size must not be greater than 100' }),
+             .lte(100, { message: 'Max font size is 100' }),
   padding: z.coerce.number({ invalid_type_error: "Padding must be a number", })
             .nonnegative({ message: 'Padding can\'t be negative' })
-            .lte(10, { message: 'Padding must not be greater than 10' }),
+            .lte(10, { message: 'Max padding is 10' }),
   fileName: z.string()
             .transform(input => filenamify(DOMPurify.sanitize(input))),
 });
@@ -112,15 +112,17 @@ const amountsSchema = z
 
 
 const calculateAliquotsModalSchema = z.object({
-  'concentration': numberInputSchema.refine(number => number > 0, { message: 'concentration must be greater than 0'}),
-  'volume': numberInputSchema.refine(number => number > 0, { message: 'volume must be greater than 0' }),
+  'concentration': z.string().trim().min(1, { message: "Enter a concentration" }).or(z.coerce.number({ invalid_type_error: "Concentration must be a number", })
+                    .positive({ message: 'Concentration must be greater than 0' })),
+  'volume': z.string().trim().min(1, { message: "Enter a volume" }).or(z.coerce.number({ invalid_type_error: "Volume must be a number", })
+             .positive({ message: 'Volume must be greater than 0' })),
   'amounts': amountsSchema,
 });
 
 const labelFormSchema = z.object({
   labels: labelsSchema,
   labelType: z.string(),
-  startLabel: startLabelSchema,
+  startLabel: z.optional(startLabelSchema),
   skipLabels: z.optional(skipLabelsSchema), 
 });
 
@@ -152,7 +154,7 @@ const getErrors = parsedDataError => {
 };
 
 
-export { getLabelListErrors, settingsSchema, labelFormSchema, calculateAliquotsModalSchema, labelSchema, nonnegativeNumberInputSchema, aliquotSchema, getErrors };
+export { getLabelListErrors, quantitySchema, settingsSchema, labelFormSchema, calculateAliquotsModalSchema, labelSchema, nonnegativeNumberInputSchema, aliquotSchema, getErrors };
 
 
 

@@ -1,16 +1,26 @@
 import React, { useState } from "react";
 import { Input, InputGroup, FormFeedback } from 'reactstrap';
 import { FaTrash } from 'react-icons/fa';
+import { quantitySchema } from "./validationSchemas";
 import './Aliquot.css';
 
-function Aliquot({ aliquottext, number, remove, onChange, errors }) {
-  // const [errors, setErrors] = useState({ number: '' });
-  const handleChange = e => onChange(e);
+const Aliquot = ({ aliquottext, number, remove, onChange }) => {
+  const [errors, setErrors] = useState({});
+  const handleChange = e => {  
+    const { name, value } = e.target;
+    onChange(e);
 
-  // const handleBlur = () => {
-  //   const parsedAliquotNumber = aliquotSchema.safeParse(number);
-  //   setErrors(prev => ({ ...prev, number: parsedAliquotNumber.number }));
-  // };
+    if (name === 'number') {
+      const parsedAliquotNumber = quantitySchema.safeParse(value);
+
+      if (!parsedAliquotNumber.success) {
+        const errorMsg = parsedAliquotNumber.error.errors[0].message;
+        setErrors(prev => ({ ...prev, number: errorMsg }));
+      } else {
+        setErrors(prev => ({ ...prev, number: null }));
+      }
+    }
+  };
 
   return (
     <div className="aliquot-input-container">

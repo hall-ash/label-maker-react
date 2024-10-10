@@ -3,15 +3,15 @@ import React, { useState } from "react";
 import LabelList from "./LabelList";
 import LoadingSpinner from './LoadingSpinner';
 import DownloadModal from './DownloadModal';
-import { Form, Button, FormGroup, Label as RSLabel, Input, Row, Col } from 'reactstrap';
+import { Form, FormFeedback, Button, FormGroup, Label as RSLabel, Input, Row, Col } from 'reactstrap';
 import ShortUniqueId from 'short-unique-id';
 import axios from 'axios';
 import SkipLabelsDropdown from "./SkipLabelsDropdown";
-import { labelFormSchema, getLabelListErrors, labelsSchema, settingsSchema, getErrors } from './validationSchemas.js';
-import { defaultSettings, labelSheetTypes } from './defaultSettings.js';
-import useLocalStorage from './useLocalStorage.js';
+import { labelFormSchema } from './validationSchemas';
+import { defaultSettings, labelSheetTypes } from './defaultSettings';
+import useLocalStorage from './useLocalStorage';
 
-
+// find out where labelcount error is being triggered
 const LabelForm = () => {
 
   const uid = new ShortUniqueId({ length: 5 });
@@ -19,6 +19,9 @@ const LabelForm = () => {
   const [settings] = useLocalStorage('LabelSettings', defaultSettings);
   const [waitingForApi, setWaitingForApi] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [downloadLink, setDownloadLink] = useState('');
+  const [errors, setErrors] = useState({});
 
   const [formData, setFormData] = useState(
   {
@@ -34,20 +37,7 @@ const LabelForm = () => {
     }],
   });
 
-  const [labelListErrors, setLabelListErrors] = useState([]);
-  const handleLabelListErrors = (labelListErrors) => {
-    setLabelListErrors(labelListErrors);
-  }
-
-  const [transformedData, setTransformedData] = useState({
-    transformedLabels: '',
-    transformedSkipLabels: '',
-    transformedFileName: '',
-  });
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [downloadLink, setDownloadLink] = useState('');
-  const [errors, setErrors] = useState({});
+  
 
   const handleModalToggle = () => setIsModalOpen(!isModalOpen);
 
@@ -201,26 +191,9 @@ const LabelForm = () => {
       setIsSubmitting(true);
 
       const parsedData = labelFormSchema.safeParse(formData);
-
-      
-      if (!parsedData.success) {
-        const issues = parsedData.error?.issues;
-
-        const newErrors = issues.reduce((acc, { path, message }) => {
-          const field = path[0];
-          const subPath = path.slice(1);
-          const subError = subPath.length > 0 ? { idx: subPath[0], 'path': subPath.slice(1), message } : message;
-          if (subPath.length > 0) {
-            const fieldList = `${field}List`
-            acc[fieldList] ? acc[fieldList].push(subError) : (acc[fieldList] = [subError]);
-          } else {
-            acc[field] = message;
-          }
-          return acc;
-        }, {});
-
-        setErrors(newErrors);
-      } else {
+      const newErrors = parsedData.success ? {} : parsedData.error.format();
+      setErrors(prev => ({ ...prev, ...newErrors }));
+      if (parsedData.success) {
         const validatedFormData = {
           'labels': parsedData.data.labels, //formattedLabels
           'sheet_type': formData.labelType,
@@ -252,8 +225,6 @@ const LabelForm = () => {
         // Set the download link and open the modal
         setDownloadLink(url);
         setIsModalOpen(true);
-  
-       
 
       }
       
@@ -303,15 +274,18 @@ const LabelForm = () => {
                 value={formData.startLabel}
                 onChange={handleChange}
                 className="form-input form-input-narrow"
+                invalid={errors?.startLabel}
               />
-              {errors.startLabel && <small className="text-danger">{errors.startLabel}</small>}
+              <FormFeedback>
+                {errors?.startLabel?._errors}
+              </FormFeedback>
             </Col>
            
           </Row>
           <SkipLabelsDropdown 
             skipLabelsValue={formData.skipLabels}
-            skipLabelsErrorMsg={errors.skipLabels}
             onChange={handleChange} 
+            errors={errors?.skipLabels}
           />
     
           <LabelList 
@@ -322,9 +296,8 @@ const LabelForm = () => {
             removeAliquot={removeAliquot}
             onChange={handleChange}
             setLabelAliquots={setLabelAliquots}
-            labelListErrors={errors.labelsList}
           />
-          {errors.labels && <small className="text-danger">{errors.labels}</small>}
+          {errors?.labels && <small className="text-danger">{errors.labels._errors}</small>}
           <div className="form-submit-container">
             <Button color="primary" type="submit" disabled={isSubmitting}>Create Labels</Button>
           </div>

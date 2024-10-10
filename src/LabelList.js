@@ -30,7 +30,7 @@ function LabelList ({ labels, addLabel, removeLabel, addAliquot, removeAliquot, 
 
   const labelComponents = labels.map(({ id, labeltext, aliquots, labelcount, displayAliquots }, idx) => {
     
-    const error = labelListErrors.idx === idx ? labelListErrors; 
+    // const error = labelListErrors.idx === idx ? labelListErrors; 
     return (
     
     <div key={id}>
@@ -45,7 +45,7 @@ function LabelList ({ labels, addLabel, removeLabel, addAliquot, removeAliquot, 
         onChange={onChange}
         setAliquots={setLabelAliquots}
         displayAliquots={displayAliquots}
-        labelErrors={labelListErrors[idx]}
+        labelErrors={labelListErrors}
       />
     </div>
       )
