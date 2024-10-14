@@ -45,23 +45,23 @@ const SettingsModal = ({ isOpen, toggle }) => {
       <ModalHeader toggle={handleCancel}>Label Settings</ModalHeader>
       <ModalBody>
         <FormGroup>
-          <RSLabel for="padding">Padding</RSLabel>
           <ReactHookFormInput 
             label="padding"
             control={control}
             errors={errors}
+            labelText="Padding"
           />
         </FormGroup>
        <FormGroup>
-       <RSLabel for="hasBorder">Font Size</RSLabel>
         <ReactHookFormInput 
           label="fontSize"
           control={control}
           errors={errors}
+          labelText="Font Size"
         />
        </FormGroup>
        
-        <FormGroup check className="d-flex align-items-center form-check-group">
+        <FormGroup check className="d-flex align-items-center form-check-group mb-2">
           <Controller
             control={control}
             name="hasBorder"
@@ -70,12 +70,32 @@ const SettingsModal = ({ isOpen, toggle }) => {
                 type="checkbox"
                 id="border"
                 className="form-check-input"
-                {...field}
+                checked={field.value} 
+                onChange={e => field.onChange(e.target.checked)}
               />
             )}
           />
-          <RSLabel for="border" check className="form-check-label ms-2">
+          <RSLabel for="border" check className="font-weight-bold form-check-label ms-2">
             Add Border
+          </RSLabel>
+        </FormGroup>
+
+        <FormGroup check className="d-flex align-items-center form-check-group mb-2">
+          <Controller
+            control={control}
+            name="fitText"
+            render={({ field }) => (
+              <Input
+                type="checkbox"
+                id="fitText"
+                className="form-check-input"
+                checked={field.value} 
+                onChange={e => field.onChange(e.target.checked)}
+              />
+            )}
+          />
+          <RSLabel for="fitText" check className="font-weight-bold form-check-label ms-2">
+            Fit Text to Label
           </RSLabel>
         </FormGroup>
 

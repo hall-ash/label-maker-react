@@ -4,7 +4,7 @@ import { Modal, Button, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, La
 import calculateAliquots from './calculateAliquots';
 import { calculateAliquotsModalSchema } from './validationSchemas';
 import ReactHookFormInput from './ReactHookFormInput';
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod';
 
 const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
@@ -106,12 +106,8 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
                   label="concentration"
                   control={control}
                   errors={errors}
+                  inputGroupText={concentrationUnit}
                 />
-                
-        
-                <InputGroupText>
-                  {concentrationUnit}
-                </InputGroupText>
                 </InputGroup>
                
               </Col>
@@ -127,10 +123,8 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
                   label="volume"
                   control={control}
                   errors={errors}
+                  inputGroupText={volumeUnit}
                 />
-                <InputGroupText>
-                  {volumeUnit}
-                </InputGroupText>
                 </InputGroup>
                
                 </Col>
@@ -147,7 +141,7 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
         
           </Form>
         </ModalBody>
-        <ModalFooter>
+        <ModalFooter className="justify-content-center">
           <Button color="primary" onClick={handleSubmit(onSubmit)} disabled={isSubmitting}>
             Calculate
           </Button>{' '}

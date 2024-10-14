@@ -83,7 +83,7 @@ const Label = ({ id, labeltext, labelCount, aliquots, removeLabel, addAliquot, r
            
                 bsSize="sm"
                 className="label-count-input"
-                invalid={errors.labelCount}
+                invalid={Boolean(errors.labelCount)}
               />
                <FormFeedback>
                 {errors.labelCount}

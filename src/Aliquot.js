@@ -48,7 +48,7 @@ const Aliquot = ({ aliquottext, number, remove, onChange }) => {
             bsSize="sm"
             className="aliquot-number-input"
             onChange={handleChange}
-            invalid={errors.number}
+            invalid={Boolean(errors.number)}
           />
           <FormFeedback>
             {errors.number}

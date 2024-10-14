@@ -7,9 +7,10 @@ import { Form, FormFeedback, Button, FormGroup, Label as RSLabel, Input, Row, Co
 import ShortUniqueId from 'short-unique-id';
 import axios from 'axios';
 import SkipLabelsDropdown from "./SkipLabelsDropdown";
-import { labelFormSchema } from './validationSchemas';
+import { labelFormSchema, labelsSchema, startLabelSchema, skipLabelsSchema } from './validationSchemas';
 import { defaultSettings, labelSheetTypes } from './defaultSettings';
 import useLocalStorage from './useLocalStorage';
+import { FaLess } from 'react-icons/fa';
 
 
 const LabelForm = () => {
@@ -21,7 +22,12 @@ const LabelForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [downloadLink, setDownloadLink] = useState('');
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({
+    'startLabel': false,
+    'skipLabels': false,
+    'labels': false,
+    'labelType': false,
+  });
 
   const [formData, setFormData] = useState(
   {
@@ -50,6 +56,24 @@ const LabelForm = () => {
   //   setErrors(getErrors(parsedData.error));
   //   console.log("errors", errors);
   // };
+
+  
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+
+    if (name === 'startLabel' || name === 'skipLabels') {
+      const schema = name === 'startLabel' ? startLabelSchema : skipLabelsSchema;
+      const parsedData = schema.safeParse(value);
+      if (!parsedData.success) {
+        const newError = parsedData.error.format();
+        setErrors(prev => ({ ...prev, [name]: newError }));
+        
+      }
+
+  
+    } 
+    
+  }
 
   const handleChange = (e, labelId, aliquotId) => {
     const { name, value } = e.target;
@@ -190,19 +214,23 @@ const LabelForm = () => {
 
       setIsSubmitting(true);
 
+
       const parsedData = labelFormSchema.safeParse(formData);
       const newErrors = parsedData.success ? {} : parsedData.error.format();
       setErrors(prev => ({ ...prev, ...newErrors }));
+
       if (parsedData.success) {
+        const { labels, labelType, startLabel, skipLabels } = parsedData.data;
         const validatedFormData = {
-          'labels': parsedData.data.labels, //formattedLabels
-          'sheet_type': formData.labelType,
-          'start_label': formData.startLabel,
-          'skip_labels': parsedData.data.skipLabels, // cleanedSkipLabels, 
+          'labels': labels, //formattedLabels
+          'sheet_type': labelType,
+          'start_label': startLabel,
+          'skip_labels': skipLabels, // cleanedSkipLabels, 
           'border': settings.hasBorder, 
           'padding': settings.padding,
           'font_size': settings.fontSize, 
           'file_name': settings.fileName, 
+          'fit_text': settings.fitText,
         };
   
         console.log('formData', validatedFormData);
@@ -274,10 +302,11 @@ const LabelForm = () => {
                 value={formData.startLabel}
                 onChange={handleChange}
                 className="form-input form-input-narrow"
-                invalid={errors?.startLabel}
+                invalid={errors.startLabel}
+                onBlur={handleBlur}
               />
               <FormFeedback>
-                {errors?.startLabel?._errors}
+                {errors.startLabel?._errors}
               </FormFeedback>
             </Col>
            
@@ -285,7 +314,8 @@ const LabelForm = () => {
           <SkipLabelsDropdown 
             skipLabelsValue={formData.skipLabels}
             onChange={handleChange} 
-            errors={errors?.skipLabels}
+            error={errors.skipLabels}
+            onBlur={handleBlur}
           />
     
           <LabelList 

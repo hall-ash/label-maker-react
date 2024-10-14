@@ -2,6 +2,7 @@ const defaultSettings = {
   'hasBorder': false, 
   'fontSize': 12, 
   'padding': 1.75,
+  'fitText': true,
   'fileName': 'labels',
 };
 

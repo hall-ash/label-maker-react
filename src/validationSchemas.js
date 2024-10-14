@@ -92,12 +92,13 @@ const labelsSchema = z
 
 const settingsSchema = z.object({
   hasBorder: z.boolean(),
+  fitText: z.boolean(),
   fontSize: z.coerce.number({ invalid_type_error: "Font size must be a number", })
              .positive({ message: 'Font size must be greater than 0' })
-             .lte(100, { message: 'Max font size is 100' }),
+             .lte(100, { message: 'Max font size is 30' }),
   padding: z.coerce.number({ invalid_type_error: "Padding must be a number", })
             .nonnegative({ message: 'Padding can\'t be negative' })
-            .lte(10, { message: 'Max padding is 10' }),
+            .lte(4, { message: 'Max padding is 4' }),
   fileName: z.string()
             .transform(input => filenamify(DOMPurify.sanitize(input))),
 });
@@ -167,7 +168,7 @@ const getErrors = parsedDataError => {
 };
 
 
-export { getLabelListErrors, quantitySchema, settingsSchema, labelFormSchema, calculateAliquotsModalSchema, labelSchema, nonnegativeNumberInputSchema, aliquotSchema, getErrors };
+export { labelsSchema, skipLabelsSchema, startLabelSchema, getLabelListErrors, quantitySchema, settingsSchema, labelFormSchema, calculateAliquotsModalSchema, labelSchema, nonnegativeNumberInputSchema, aliquotSchema, getErrors };
 
 
 

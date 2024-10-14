@@ -1,4 +1,4 @@
-import { Input, FormFeedback, Label as RSLabel } from 'reactstrap';
+import { Input, FormFeedback, InputGroupText, Label as RSLabel } from 'reactstrap';
 import { Controller } from "react-hook-form";
 
 // use ReactStrap FormFeedback ???
@@ -9,10 +9,10 @@ invalid={errors.number}
 {errors.number}
 </FormFeedback> */}
 
-const ReactHookFormInput = ({ label, control, errors, type="text", bsSize="sm", required=false, className="" }) => {
+const ReactHookFormInput = ({ label, control, errors, type="text", bsSize="sm", required=false, className="", inputGroupText="", labelText="" }) => {
   return (
     <>
-      {/* <RSLabel className={label} for={label}>{_.startCase(label)}</RSLabel> */}
+      {labelText && <RSLabel for={label}>{labelText}</RSLabel>}
       <Controller
         control={control}
         name={label}
@@ -28,6 +28,9 @@ const ReactHookFormInput = ({ label, control, errors, type="text", bsSize="sm", 
           />
         )}
       />
+      {inputGroupText && 
+        <InputGroupText>{inputGroupText}</InputGroupText>
+      }
       <FormFeedback>
         {errors[label]?.message}
       </FormFeedback>
