@@ -165,7 +165,7 @@ function LabelForm() {
       setFileReady(false);
 
 
-      const response = await axios.post('http://192.168.134.118:5000/api/generate_pdf', formData, {
+      const response = await axios.post(`http://${process.env.IP_ADDR}:5000/api/generate_pdf`, formData, {
         responseType: 'blob' // Important for handling binary data
       });
 
