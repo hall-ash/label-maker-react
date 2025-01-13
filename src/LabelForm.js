@@ -236,7 +236,7 @@ const LabelForm = () => {
         console.log('formData', validatedFormData);
   
         const atWork = true;
-        const api = atWork ? 'http://192.168.134.118:5000/api/generate_pdf' : 'http://192.168.4.112:5000/api/generate_pdf';
+        const api = atWork ? `http://${process.env.IP_ADDR}:5000/api/generate_pdf` : 'http://192.168.4.112:5000/api/generate_pdf';
         
         setWaitingForApi(true);
         const response = await axios.post(api, validatedFormData, {
