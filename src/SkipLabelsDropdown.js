@@ -43,7 +43,8 @@ const SkipLabelsDropdown = ({ skipLabelsValue, onChange, error, onBlur }) => {
                 className="form-textarea"
               />
               <FormFeedback>
-                {error.errors[0]?.message}
+                {error}
+                {/*{error.errors[0]?.message}*/}
               </FormFeedback>
             
           </AccordionBody>

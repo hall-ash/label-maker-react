@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const useLocalStorage = (key, initialValue) => {
+const useLocalStorage = (key, initialValue, callback) => {
     // State to store our value
     // Pass initial state function to useState so logic is only executed once
     const [storedValue, setStoredValue] = useState(() => {
@@ -27,6 +27,7 @@ const useLocalStorage = (key, initialValue) => {
         setStoredValue(valueToStore);
         // Save to local storage
         localStorage.setItem(key, JSON.stringify(valueToStore));
+        if (callback) callback(valueToStore);
       } catch (error) {
         // A more advanced implementation would handle the error case
         console.log(error);

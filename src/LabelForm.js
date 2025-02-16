@@ -10,6 +10,7 @@ import SkipLabelsDropdown from "./SkipLabelsDropdown";
 import { labelFormSchema, labelsSchema, startLabelSchema, skipLabelsSchema } from './validationSchemas';
 import { defaultSettings, labelSheetTypes } from './defaultSettings';
 import useLocalStorage from './useLocalStorage';
+import SubmissionAlertModal from './SubmissionAlertModal';
 import { FaLess } from 'react-icons/fa';
 
 
@@ -28,6 +29,7 @@ const LabelForm = () => {
     'labels': false,
     'labelType': false,
   });
+  const [submissionAlertModalOpen, setSubmissionAlertModalOpen] = useState(false);
 
   const [formData, setFormData] = useState(
   {
@@ -68,11 +70,10 @@ const LabelForm = () => {
         const newError = parsedData.error.format();
         setErrors(prev => ({ ...prev, [name]: newError }));
         
+      } else {
+        setErrors(prev => ({ ...prev, [name]: '' }));
       }
-
-  
     } 
-    
   }
 
   const handleChange = (e, labelId, aliquotId) => {
@@ -230,35 +231,47 @@ const LabelForm = () => {
           'padding': settings.padding,
           'font_size': settings.fontSize, 
           'file_name': settings.fileName, 
-          'fit_text': settings.fitText,
+          'text_anchor': settings.text_anchor,
         };
   
-        console.log('formData', validatedFormData);
-  
-        const atWork = true;
-        const api = atWork ? `http://${process.env.IP_ADDR}:5000/api/generate_pdf` : 'http://192.168.4.112:5000/api/generate_pdf';
         
+        const api = `https://label-maker-backend-vn0q.onrender.com/api/generate_pdf`;
+        const testing = false;
+
         setWaitingForApi(true);
-        const response = await axios.post(api, validatedFormData, {
-          responseType: 'blob', // Important for handling binary data
-          timeout: 10000, // timeout after 10 seconds
-        });
-  
-        // Create a blob from the response
-        const blob = new Blob([response.data], { type: 'application/pdf' });
-  
-        // Create a URL for the blob
-        const url = window.URL.createObjectURL(blob);
-  
-        // Set the download link and open the modal
-        setDownloadLink(url);
+        if (testing) {
+          console.log('submitted formData\n', validatedFormData);
+        } else {
+          console.log('submitted formData\n', validatedFormData);
+          const response = await axios.post(api, validatedFormData, {
+            responseType: 'blob', // Important for handling binary data
+            timeout: 10000, // timeout after 10 seconds
+          });
+    
+          // Create a blob from the response
+          const blob = new Blob([response.data], { type: 'application/pdf' });
+    
+          // Create a URL for the blob
+          const url = window.URL.createObjectURL(blob);
+    
+          // Set the download link and open the modal
+          setDownloadLink(url);
+        }
+
+        
+        
         setIsModalOpen(true);
 
+      } else {
+        if (errors?.labels) {
+          setSubmissionAlertModalOpen(true);
+        }
       }
       
     } catch (error) {
       if (error.code === 'ECONNABORTED') {
         console.error('Request timed out');
+        console.error(error)
         // add code to display error to user here
       }
       console.error('Error downloading the file:', error);
@@ -302,7 +315,7 @@ const LabelForm = () => {
                 value={formData.startLabel}
                 onChange={handleChange}
                 className="form-input form-input-narrow"
-                invalid={errors.startLabel}
+                invalid={!!errors.startLabel} // convert to bool
                 onBlur={handleBlur}
               />
               <FormFeedback>
@@ -328,12 +341,16 @@ const LabelForm = () => {
             setLabelAliquots={setLabelAliquots}
           />
           <div className="form-submit-container">
-            {errors?.labels && <small className="text-danger">{errors.labels._errors}</small>}
+            {/* {errors?.labels && <small className="text-danger">{errors.labels._errors}</small>} */}
             <Button color="primary" type="submit" disabled={isSubmitting}>Create Labels</Button>
           </div>
         </Form>
         <DownloadModal isOpen={isModalOpen} toggle={handleModalToggle} downloadLink={downloadLink} />
-     
+        <SubmissionAlertModal 
+          isOpen={submissionAlertModalOpen} 
+          toggle={() => setSubmissionAlertModalOpen(!submissionAlertModalOpen)}
+          errorMessage={errors.labels._errors}
+        />
     </div>)
   );
 

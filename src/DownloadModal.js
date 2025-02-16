@@ -5,7 +5,7 @@ const DownloadModal = ({ isOpen, toggle, downloadLink }) => {
 
   const {
     fileName = 'labels'
-  } = JSON.parse(localStorage.getItem('settings')) || {};
+  } = JSON.parse(localStorage.getItem('LabelSettings')) || {};
 
   return (
     <Modal isOpen={isOpen} toggle={toggle}>

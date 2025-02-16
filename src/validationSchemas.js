@@ -92,7 +92,11 @@ const labelsSchema = z
 
 const settingsSchema = z.object({
   hasBorder: z.boolean(),
-  fitText: z.boolean(),
+  textAnchor: z.union([
+    z.literal('start'),
+    z.literal('middle'),
+    z.literal('end'),
+  ]),
   fontSize: z.coerce.number({ invalid_type_error: "Font size must be a number", })
              .positive({ message: 'Font size must be greater than 0' })
              .lte(100, { message: 'Max font size is 30' }),
