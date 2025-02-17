@@ -1,4 +1,4 @@
-const calculateAliquots = (concentration, volume, amounts) => {
+const calculateAliquots = (concentration, volume, amounts, aliquotMassUnit="mg") => {
 
 
     amounts.sort((a, b) => a - b);
