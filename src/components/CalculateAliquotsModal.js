@@ -13,9 +13,7 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
   const volumeUnit = 'mL';
   const aliquotMassUnit = 'mg';
 
-  // const [formData, setFormData] = useState();
-
-  const { control, handleSubmit, formState: { errors, isSubmitting }, reset, clearErrors } = useForm({
+  const { control, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm({
     defaultValues: {
       'concentration': '',
       'volume': '',
