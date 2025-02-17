@@ -1,4 +1,4 @@
-const calculateAliquots = (concentration, volume, amounts, concentrationUnit="mg/mL", volumeUnit="mL", aliquotMassUnit="mg") => {
+const calculateAliquots = (concentration, volume, amounts) => {
 
 
     amounts.sort((a, b) => a - b);
@@ -56,21 +56,5 @@ const calculateAliquots = (concentration, volume, amounts, concentrationUnit="mg
   };
 
 
-const validateRangeInput = input => {
-  // check valid characters
-  const validCharacters = /^[\w\s\-,]*$/.test(input)
-
-  if (!validCharacters) {
-    return false;
-  }
-
-  // strip input of characters that aren't a letter or digit
-  input = input.replace(/[\s\-,]/g, '');
-
-  // check correct pattern
-  const pattern = /^([a-zA-Z]\d{1,2})+$/;
-  return pattern.test(input);
-
-};
 
 export default calculateAliquots;
