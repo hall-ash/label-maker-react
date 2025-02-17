@@ -8,9 +8,9 @@ import {
   NavbarBrand,
   Nav,
   NavItem,
-  NavLink,
   Button
 } from 'reactstrap';
+import { Link } from 'react-router-dom';
 import SettingsModal from "./SettingsModal.js";
 
 function Navigation(args) {
@@ -28,10 +28,10 @@ function Navigation(args) {
         <Collapse isOpen={isOpen} navbar>
           <Nav className="ms-auto" navbar>
             <NavItem>
-              <NavLink href="/">Home</NavLink>
+              <Link className="nav-link" to="/">Home</Link>
             </NavItem>
             <NavItem>
-              <NavLink href="/about">About</NavLink>
+              <Link className="nav-link" to="/about">About</Link>
             </NavItem>
             <NavItem>
               <Button color="link" onClick={toggleModal} className="settings-btn"><FaCog /></Button>
