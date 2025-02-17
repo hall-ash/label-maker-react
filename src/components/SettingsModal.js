@@ -4,11 +4,11 @@ import {
   Button, Input, InputGroup, InputGroupText,
   FormGroup, Label as RSLabel, FormFeedback
 } from 'reactstrap';
-import { settingsSchema } from './validationSchemas.js';
+import { settingsSchema } from '../utils/validationSchemas.js';
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod';
-import useLocalStorage from './useLocalStorage.js';
-import { defaultSettings } from './defaultSettings.js';
+import useLocalStorage from '../hooks/useLocalStorage.js';
+import { defaultSettings } from '../defaultSettings.js';
 import ReactHookFormInput from './ReactHookFormInput';
 
 const SettingsModal = ({ isOpen, toggle }) => {

@@ -1,11 +1,11 @@
-import './Label.css';
+import '../styles/Label.css';
 import React, { useState } from "react";
 import Aliquot from "./Aliquot";
 import CalculateAliquotsModal from './CalculateAliquotsModal';
 import { Row, Col, FormFeedback, Label as RSLabel, FormGroup, Input, Container, Button } from 'reactstrap';
 import { FaPlusSquare, FaTimes } from 'react-icons/fa';
-import { labelSchema, quantitySchema, getErrors } from './validationSchemas';
-import './Label.css';
+import { quantitySchema } from '../utils/validationSchemas';
+import '../styles/Label.css';
 
 
 const Label = ({ id, labeltext, labelCount, aliquots, removeLabel, addAliquot, removeAliquot, onChange, setAliquots, displayAliquots }) => {
@@ -66,6 +66,7 @@ const Label = ({ id, labeltext, labelCount, aliquots, removeLabel, addAliquot, r
             type="textarea"
             value={labeltext}
             onChange={handleChange}
+            rows={4}
           />
         </FormGroup>
       </Row>
@@ -80,7 +81,6 @@ const Label = ({ id, labeltext, labelCount, aliquots, removeLabel, addAliquot, r
                 type="text"
                 value={labelCount}
                 onChange={handleChange}
-           
                 bsSize="sm"
                 className="label-count-input"
                 invalid={Boolean(errors.labelCount)}

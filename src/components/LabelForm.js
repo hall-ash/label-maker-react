@@ -1,4 +1,4 @@
-import './LabelForm.css'
+import '../styles/LabelForm.css'
 import React, { useState } from "react";
 import LabelList from "./LabelList";
 import LoadingSpinner from './LoadingSpinner';
@@ -7,18 +7,14 @@ import { Form, FormFeedback, Button, FormGroup, Label as RSLabel, Input, Row, Co
 import ShortUniqueId from 'short-unique-id';
 import axios from 'axios';
 import SkipLabelsDropdown from "./SkipLabelsDropdown";
-import { labelFormSchema, labelsSchema, startLabelSchema, skipLabelsSchema } from './validationSchemas';
-import { defaultSettings, labelSheetTypes } from './defaultSettings';
-import useLocalStorage from './useLocalStorage';
+import { labelFormSchema, startLabelSchema, skipLabelsSchema } from '../utils/validationSchemas';
+import { defaultSettings, labelSheetTypes } from '../defaultSettings';
 import SubmissionAlertModal from './SubmissionAlertModal';
-import { FaLess } from 'react-icons/fa';
 
 
 const LabelForm = () => {
 
   const uid = new ShortUniqueId({ length: 5 });
-
-  const [settings] = useLocalStorage('LabelSettings', defaultSettings);
   const [waitingForApi, setWaitingForApi] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -46,20 +42,8 @@ const LabelForm = () => {
   });
 
   
-
   const handleModalToggle = () => setIsModalOpen(!isModalOpen);
 
-  // const handleBlur = () => {
-  //   console.log('labels', Array.isArray(formData.labels));
-  //   console.log('formData', formData);
-  //   const parsedData = labelFormSchema.safeParse(formData);
-
-    
-  //   setErrors(getErrors(parsedData.error));
-  //   console.log("errors", errors);
-  // };
-
-  
   const handleBlur = (e) => {
     const { name, value } = e.target;
 
@@ -103,36 +87,6 @@ const LabelForm = () => {
           ...prev,
           [name]: value,
         });
-
-        // const parsedData = labelFormSchema.safeParse(updated);
-
-        // if (parsedData.data) {
-
-        //   const keyMapping = {
-        //     labels: 'transformedLabels',
-        //     skipLabels: 'transformedSkipLabels',
-        //     fileName: 'transformedFileName',
-        //   };
-
-        //   const updatedTransformedData = Object.entries(parsedData.data).reduce((acc, [key, value]) => {
-            
-        //     if (key in keyMapping) {
-        //       acc[keyMapping[key]] = value;
-        //     }
-        //     return acc;
-        //   }, {});
-
-        //   setTransformedData(prev => ({...prev, ...updatedTransformedData}));
-        // };
-
-        // const newErrors = Object.entries(updated).reduce((acc, [input, value]) => {
-        //   if (value === "") {
-        //     acc[input] = "";
-        //   }
-        //   return acc;
-        // }, {});
-
-        // setErrors(prev => ({ ...prev, ...newErrors }));
 
         return updated;
     });
@@ -215,13 +169,13 @@ const LabelForm = () => {
 
       setIsSubmitting(true);
 
-
       const parsedData = labelFormSchema.safeParse(formData);
       const newErrors = parsedData.success ? {} : parsedData.error.format();
       setErrors(prev => ({ ...prev, ...newErrors }));
 
       if (parsedData.success) {
         const { labels, labelType, startLabel, skipLabels } = parsedData.data;
+        const settings = JSON.parse(localStorage.getItem('LabelSettings')) || defaultSettings;
         const validatedFormData = {
           'labels': labels, //formattedLabels
           'sheet_type': labelType,
@@ -231,34 +185,28 @@ const LabelForm = () => {
           'padding': settings.padding,
           'font_size': settings.fontSize, 
           'file_name': settings.fileName, 
-          'text_anchor': settings.text_anchor,
+          'text_anchor': settings.textAnchor,
         };
   
         
         const api = `https://label-maker-backend-vn0q.onrender.com/api/generate_pdf`;
-        const testing = false;
+    
 
         setWaitingForApi(true);
-        if (testing) {
-          console.log('submitted formData\n', validatedFormData);
-        } else {
-          console.log('submitted formData\n', validatedFormData);
-          const response = await axios.post(api, validatedFormData, {
-            responseType: 'blob', // Important for handling binary data
-            timeout: 10000, // timeout after 10 seconds
-          });
-    
-          // Create a blob from the response
-          const blob = new Blob([response.data], { type: 'application/pdf' });
-    
-          // Create a URL for the blob
-          const url = window.URL.createObjectURL(blob);
-    
-          // Set the download link and open the modal
-          setDownloadLink(url);
-        }
-
-        
+      
+        const response = await axios.post(api, validatedFormData, {
+          responseType: 'blob', // Important for handling binary data
+          timeout: 60000, // timeout after 60 seconds
+        });
+  
+        // Create a blob from the response
+        const blob = new Blob([response.data], { type: 'application/pdf' });
+  
+        // Create a URL for the blob
+        const url = window.URL.createObjectURL(blob);
+  
+        // Set the download link and open the modal
+        setDownloadLink(url);
         
         setIsModalOpen(true);
 
@@ -341,7 +289,6 @@ const LabelForm = () => {
             setLabelAliquots={setLabelAliquots}
           />
           <div className="form-submit-container">
-            {/* {errors?.labels && <small className="text-danger">{errors.labels._errors}</small>} */}
             <Button color="primary" type="submit" disabled={isSubmitting}>Create Labels</Button>
           </div>
         </Form>
@@ -353,7 +300,6 @@ const LabelForm = () => {
         />
     </div>)
   );
-
 }
 
 export default LabelForm;

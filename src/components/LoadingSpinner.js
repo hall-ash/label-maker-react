@@ -1,5 +1,5 @@
 import React from "react";
-import "./LoadingSpinner.css";
+import "../styles/LoadingSpinner.css";
 import { DNA } from 'react-loader-spinner';
 
 

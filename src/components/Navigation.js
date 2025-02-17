@@ -1,27 +1,6 @@
-// import React from 'react';
-// import { Link } from 'react-router-dom';
-
-
-// function Navigation() {
-//   return (
-//     <nav>
-//       <ul>
-//         <li>
-//           <Link to="/">Home</Link>
-//         </li>
-//         <li>
-//           <Link to="/calculate">Calculate</Link>
-//         </li>
-//       </ul>
-//     </nav>
-//   );
-// }
-
-// export default Navigation;
-
 import React, { useState } from 'react';
 import { FaCog } from 'react-icons/fa';
-import "./Navigation.css";
+import "../styles/Navigation.css";
 import {
   Collapse,
   Navbar,
@@ -30,7 +9,6 @@ import {
   Nav,
   NavItem,
   NavLink,
-  NavbarText,
   Button
 } from 'reactstrap';
 import SettingsModal from "./SettingsModal.js";
@@ -45,7 +23,7 @@ function Navigation(args) {
   return (
     <div>
       <Navbar {...args} light expand="md">
-        <NavbarBrand href="/">Label Maker</NavbarBrand>
+        <NavbarBrand href="/">label μaker</NavbarBrand>
         <NavbarToggler onClick={toggle} />
         <Collapse isOpen={isOpen} navbar>
           <Nav className="ms-auto" navbar>

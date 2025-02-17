@@ -1,8 +1,8 @@
-import './CalculateAliquotsModal.css';
+import '../styles/CalculateAliquotsModal.css';
 import React, { useState } from 'react';
 import { Modal, Button, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label as RSLabel, Input, InputGroupText, Row, Col, InputGroup } from 'reactstrap';
-import calculateAliquots from './calculateAliquots';
-import { calculateAliquotsModalSchema } from './validationSchemas';
+import calculateAliquots from '../utils/calculateAliquots';
+import { calculateAliquotsModalSchema } from '../utils/validationSchemas';
 import ReactHookFormInput from './ReactHookFormInput';
 import { useForm } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod';

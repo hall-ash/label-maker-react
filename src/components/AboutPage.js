@@ -1,9 +1,8 @@
-import { Form, Button, FormGroup, Label as RSLabel, Input, FormText, InputGroupText, Container, Row, Col, InputGroup } from 'reactstrap';
-import React, { useState } from "react";
+import { Container } from 'reactstrap';
+import React from "react";
 
 
 const AboutPage = () => {
-
 
   return (
     <Container className='col-md-7'>

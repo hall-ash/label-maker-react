@@ -2,20 +2,7 @@ import { z } from 'zod';
 import DOMPurify from 'dompurify';
 import filenamify from 'filenamify/browser';
 
-// const startLabelSchema = z.optional(z.string().regex(/^[a-zA-Z]\d{1,2}$/, {
-//   message: "Invalid label coordinates",
-// }));
 
-// const validatePattern = (value) => {
-//   const pattern = /^[a-zA-Z]\d{1,2}$/; // Define your regex pattern
-//   // Allow empty strings or strings that match the pattern
-//   return value === '' || pattern.test(value);
-// };
-
-// // Define the schema using Zod and pass the custom function to `.refine()`
-// const schema = z.string().refine(validatePattern, {
-//   message: 'Invalid input: must be an empty string or match the specified pattern',
-// });
 
 const startLabelSchema = z.string()
                 .refine(s => {
@@ -77,7 +64,6 @@ const labelsSchema = z
   .array(labelSchema)
   .transform((labels) =>
     labels
-      .filter((label) => label.labeltext && label.labelcount) 
       .map(({ labeltext, aliquots, labelcount, displayAliquots }) => ({
         name: DOMPurify.sanitize(labeltext.trim()),
         count: labelcount,

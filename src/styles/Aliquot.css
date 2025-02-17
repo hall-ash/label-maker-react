@@ -4,6 +4,7 @@
 
 .aliquot-number-input {
   flex-shrink: 2;
+  max-width: 80px;
 }
 
 .trash-icon {

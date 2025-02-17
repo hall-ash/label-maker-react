@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Input, InputGroup, FormFeedback } from 'reactstrap';
 import { FaTrash } from 'react-icons/fa';
-import { quantitySchema } from "./validationSchemas";
-import './Aliquot.css';
+import { quantitySchema } from "../utils/validationSchemas";
+import '../styles/Aliquot.css';
 
 const Aliquot = ({ aliquottext, number, remove, onChange }) => {
   const [errors, setErrors] = useState({

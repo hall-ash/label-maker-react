@@ -1,9 +1,8 @@
-// import logo from './logo.svg';
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import HomePage from './HomePage';
-import AboutPage from './AboutPage';
-import Navigation from './Navigation';
+import HomePage from './components/HomePage';
+import AboutPage from './components/AboutPage';
+import Navigation from './components/Navigation';
 
 const App = () => {
 

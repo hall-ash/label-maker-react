@@ -1,14 +1,6 @@
 import { Input, FormFeedback, InputGroupText, Label as RSLabel } from 'reactstrap';
 import { Controller } from "react-hook-form";
 
-// use ReactStrap FormFeedback ???
-{/* <Input
-invalid={errors.number}
-/>
-<FormFeedback>
-{errors.number}
-</FormFeedback> */}
-
 const ReactHookFormInput = ({ label, control, errors, type="text", bsSize="sm", required=false, className="", inputGroupText="", labelText="" }) => {
   return (
     <>
