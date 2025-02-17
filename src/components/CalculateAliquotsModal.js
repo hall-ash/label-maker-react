@@ -1,6 +1,6 @@
 import '../styles/CalculateAliquotsModal.css';
 import React, { useState } from 'react';
-import { Modal, Button, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label as RSLabel, Input, InputGroupText, Row, Col, InputGroup } from 'reactstrap';
+import { Modal, Button, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label as RSLabel, Row, Col, InputGroup } from 'reactstrap';
 import calculateAliquots from '../utils/calculateAliquots';
 import { calculateAliquotsModalSchema } from '../utils/validationSchemas';
 import ReactHookFormInput from './ReactHookFormInput';
