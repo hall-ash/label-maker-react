@@ -22,10 +22,6 @@ const SettingsModal = ({ isOpen, toggle }) => {
     mode: 'onTouched',
   });
 
-  useEffect(() => {
-    console.log('updated localStorage', settings);
-  }, [settings]);
-
   const onSubmit = (data) => {
     setSettings(data); // Save to local storage
     toggle(); // Close modal
