@@ -190,6 +190,7 @@ const LabelForm = () => {
 
         setWaitingForApi(true);
       
+        console.log('API', process.env.API)
         const response = await axios.post(process.env.API, validatedFormData, {
           responseType: 'blob', // Important for handling binary data
           timeout: 60000, // timeout after 60 seconds
