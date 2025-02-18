@@ -187,14 +187,10 @@ const LabelForm = () => {
           'file_name': settings.fileName, 
           'text_anchor': settings.textAnchor,
         };
-  
-        
-        const api = `https://label-maker-backend-vn0q.onrender.com/api/generate_pdf`;
-    
 
         setWaitingForApi(true);
       
-        const response = await axios.post(api, validatedFormData, {
+        const response = await axios.post(process.env.API, validatedFormData, {
           responseType: 'blob', // Important for handling binary data
           timeout: 60000, // timeout after 60 seconds
         });
