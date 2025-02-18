@@ -85,7 +85,7 @@ const settingsSchema = z.object({
   ]),
   fontSize: z.coerce.number({ invalid_type_error: "Font size must be a number", })
              .positive({ message: 'Font size must be greater than 0' })
-             .lte(100, { message: 'Max font size is 30' }),
+             .lte(30, { message: 'Max font size is 30' }),
   padding: z.coerce.number({ invalid_type_error: "Padding must be a number", })
             .nonnegative({ message: 'Padding can\'t be negative' })
             .lte(4, { message: 'Max padding is 4' }),
