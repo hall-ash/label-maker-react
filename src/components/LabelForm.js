@@ -160,7 +160,6 @@ const LabelForm = () => {
     }));
   };
 
-  console.log(process.env.REACT_APP_API)
   const handleSubmit = async (e) => {
 
     try {
