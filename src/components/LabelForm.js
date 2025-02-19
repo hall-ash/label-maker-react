@@ -189,21 +189,22 @@ const LabelForm = () => {
 
         setWaitingForApi(true);
 
-        const response = await axios.post(process.env.REACT_APP_API, validatedFormData, {
-          responseType: 'blob', // Important for handling binary data
-          timeout: 60000, // timeout after 60 seconds
-        });
+        console.log('validatedFormData', validatedFormData)
+        // const response = await axios.post(process.env.REACT_APP_API, validatedFormData, {
+        //   responseType: 'blob', // Important for handling binary data
+        //   timeout: 60000, // timeout after 60 seconds
+        // });
   
-        // Create a blob from the response
-        const blob = new Blob([response.data], { type: 'application/pdf' });
+        // // Create a blob from the response
+        // const blob = new Blob([response.data], { type: 'application/pdf' });
   
-        // Create a URL for the blob
-        const url = window.URL.createObjectURL(blob);
+        // // Create a URL for the blob
+        // const url = window.URL.createObjectURL(blob);
   
-        // Set the download link and open the modal
-        setDownloadLink(url);
+        // // Set the download link and open the modal
+        // setDownloadLink(url);
         
-        setIsModalOpen(true);
+        // setIsModalOpen(true);
 
       } else {
         if (errors?.labels) {

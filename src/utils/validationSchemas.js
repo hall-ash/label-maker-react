@@ -63,15 +63,15 @@ const labelSchema = z.object({
 const labelsSchema = z
   .array(labelSchema)
   .transform((labels) =>
-    labels.filter(label => label.labelcount > 0 || label.displayAliquots)
+    labels
       .map(({ labeltext, aliquots, labelcount, displayAliquots }) => ({
         name: DOMPurify.sanitize(labeltext.trim()),
-        count: labelcount,
+        count: displayAliquots ? 0 : labelcount,
         use_aliquots: displayAliquots,
         aliquots: aliquots
-          .filter(aliquot => aliquot.number) 
+          .filter(aliquot => aliquot.number && aliquot.aliquottext) 
           .map(({ aliquottext, number }) => ({ text: DOMPurify.sanitize(aliquottext), number })), 
-      }))
+      })).filter(label => (label.count > 0 && label.name) || label.aliquots.length > 0)
   )
   .refine(labels => labels.length > 0, { message: "Add a label to print" });
 
