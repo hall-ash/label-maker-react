@@ -63,7 +63,7 @@ const labelSchema = z.object({
 const labelsSchema = z
   .array(labelSchema)
   .transform((labels) =>
-    labels
+    labels.filter(label => label.labelcount > 0 || label.displayAliquots)
       .map(({ labeltext, aliquots, labelcount, displayAliquots }) => ({
         name: DOMPurify.sanitize(labeltext.trim()),
         count: labelcount,
