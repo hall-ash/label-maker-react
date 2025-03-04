@@ -9,8 +9,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
 
-  const concentrationUnit = 'mg/mL';
-  const volumeUnit = 'mL';
   const aliquotMassUnit = 'mg';
 
   const { control, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm({
@@ -25,33 +23,12 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
 
   const onSubmit = data => {
     const { concentration, volume, amounts } = data;
-    console.log('data', data);
-    const aliquots = calculateAliquots(concentration, volume, amounts, concentrationUnit, volumeUnit, aliquotMassUnit);
+    const aliquots = calculateAliquots(concentration, volume, amounts, aliquotMassUnit);
     handleCalculateAliquotsClick(aliquots);
     toggle();
   }
 
-  // const handleSubmit = e => {
-  //   e.preventDefault();
-
-  //   if (!Object.keys(errors).length) {
-      
-  //     const { concentration, volume } = formData;
-  //     const { transformedAmounts } = transformedData;
-  //     const aliquots = calculateAliquots(concentration, volume, transformedAmounts, concentrationUnit, volumeUnit, aliquotMassUnit);
-
-  //     handleCalculateAliquotsClick(aliquots);
-  //     toggle();
-  //   }
-    
-  // };
-
-  // const [transformedData, setTransformedData] = useState({
-  //   'transformedAmounts': '',
-  // });
-
   const [modal, setModal] = useState(false);
-  // const [errors, setErrors] = useState({}); 
 
   const toggle = () => setModal(!modal);
 
@@ -59,31 +36,6 @@ const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
     toggle();
     reset();
   }
-
-
-  // const handleInputChange = e => {
-  //   const { name, value } = e.target;
-  //   setFormData({
-  //     ...formData,
-  //     [name]: value,
-  //   });
-
-  //   const parsedData = calculateAliquotsModalSchema.safeParse(formData);
-  //   const newErrors = parsedData.success ? {} : parsedData.error.format();
-  //   setErrors(prev => ({ ...prev, ...newErrors }));
-  //   setFormData(prevFormData => {
-  //     const updatedFormData = { ...prevFormData, [name]: value, };
-
-  //     const parsedData = calculateAliquotsModalSchema.safeParse(updatedFormData);
-  //     setTransformedData(prev => ({ ...prev, transformedAmounts: parsedData.data.amounts }));
-  //     setErrors(getErrors(parsedData.error));
-  //     return updatedFormData;
-  //   })
-  // };
-
-
- 
-
 
   return (
     <div className="button-div">
