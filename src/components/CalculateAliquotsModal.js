@@ -10,6 +10,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 const CalculateAliquotsModal = ({ handleCalculateAliquotsClick }) => {
 
   const aliquotMassUnit = 'mg';
+  const volumeUnit = 'mL';
+  const concentrationUnit = 'mg/mL';
 
   const { control, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm({
     defaultValues: {
