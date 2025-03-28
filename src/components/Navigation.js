@@ -23,7 +23,7 @@ function Navigation(args) {
   return (
     <div>
       <Navbar {...args} light expand="md">
-        <NavbarBrand href="/">μ</NavbarBrand>
+        <NavbarBrand href="/">make labels</NavbarBrand>
         <NavbarToggler onClick={toggle} />
         <Collapse isOpen={isOpen} navbar>
           <Nav className="ms-auto" navbar>
