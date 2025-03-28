@@ -13,7 +13,7 @@ import {
 import { Link } from 'react-router-dom';
 import SettingsModal from "./SettingsModal.js";
 
-function Navigation(args) {
+const Navigation = (args) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -42,6 +42,6 @@ function Navigation(args) {
       </Navbar>
     </div>
   );
-}
+};
 
 export default Navigation;
